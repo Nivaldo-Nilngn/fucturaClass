@@ -1,0 +1,47 @@
+{
+  "appTitle": "Fuctura Student Portal",
+  "loginWelcomeTitle": "Welcome back!",
+  "loginWelcomeSubtitle": "Ready to continue your coding journey?",
+  "loginPortalTitle": "Fuctura Student Portal",
+  "loginPortalDescription": "Accelerate your tech career with our immersive learning platform. Coding challenges, specialized tracks, and a vibrant community of developers.",
+  "loginFeatureChallenges": "Challenges",
+  "loginFeatureRewards": "Rewards",
+  "loginFeatureCommunity": "Community",
+  "loginEmailLabel": "Corporate or Personal Email",
+  "loginEmailHint": "dev@example.com",
+  "loginPasswordLabel": "PASSWORD",
+  "loginForgotPassword": "Forgot my password",
+  "loginPasswordHint": "••••••••",
+  "loginRememberMe": "Remember me on this device",
+  "loginSubmitButton": "Enter Portal",
+  "loginNewHere": "New here? ",
+  "loginRequestAccess": "Request Academy access",
+  "loginTerms": "Terms",
+  "loginPrivacy": "Privacy",
+  "loginSupport": "Support",
+  "loginSuccessMessage": "Login successful!",
+  "loginEmailRequired": "Email and password are required.",
+  "loginOrContinueWith": "OR CONTINUE WITH",
+  "homeTitle": "Hello, {name}!",
+  "@homeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeModuleProgress": "Module Progress",
+  "homeModuleSkills": "Module Skills",
+  "homeNextClass": "Next Class",
+  "homePracticeNow": "Practice Now",
+  "homePracticeDesc": "Quick exercise",
+  "homeStuck": "I'm stuck",
+  "homeStuckDesc": "Ask for help",
+  "homeAttention": "Attention",
+  "homeRecoverContent": "Recover content",
+  "homeCompleted": "completed",
+  "navHome": "Home",
+  "navPractice": "Practice",
+  "navStuck": "Stuck",
+  "navManager": "Manager"
+}

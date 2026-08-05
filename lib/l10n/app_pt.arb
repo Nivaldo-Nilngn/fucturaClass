@@ -1,0 +1,48 @@
+{
+  "appTitle": "Portal do Aluno Fuctura",
+  "loginWelcomeTitle": "Bem-vindo de volta!",
+  "loginWelcomeSubtitle": "Pronto para continuar sua jornada de código?",
+  "loginPortalTitle": "Fuctura Student Portal",
+  "loginPortalDescription": "Acelere sua carreira na tecnologia com nossa plataforma imersiva de aprendizado. Desafios de código, trilhas especializadas e uma comunidade vibrante de desenvolvedores.",
+  "loginFeatureChallenges": "Desafios",
+  "loginFeatureRewards": "Recompensas",
+  "loginFeatureCommunity": "Comunidade",
+  "loginEmailLabel": "Email Corporativo ou Pessoal",
+  "loginEmailHint": "dev@exemplo.com",
+  "loginPasswordLabel": "SENHA",
+  "loginForgotPassword": "Esqueci minha senha",
+  "loginPasswordHint": "••••••••",
+  "loginRememberMe": "Lembrar de mim neste dispositivo",
+  "loginSubmitButton": "Entrar no Portal",
+  "loginNewHere": "Novo por aqui? ",
+  "loginRequestAccess": "Solicite acesso à Academia",
+  "loginTerms": "Termos",
+  "loginPrivacy": "Privacidade",
+  "loginSupport": "Suporte",
+  "loginSuccessMessage": "Login realizado com sucesso!",
+  "loginEmailRequired": "E-mail e senha são obrigatórios.",
+  "loginOrContinueWith": "OU CONTINUE COM",
+
+  "homeTitle": "Olá, {name}!",
+  "@homeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeModuleProgress": "Progresso do Módulo",
+  "homeModuleSkills": "Competências do módulo",
+  "homeNextClass": "Próxima aula",
+  "homePracticeNow": "Praticar agora",
+  "homePracticeDesc": "Exercício rápido",
+  "homeStuck": "Estou travado",
+  "homeStuckDesc": "Peça ajuda",
+  "homeAttention": "Atenção",
+  "homeRecoverContent": "Recuperar conteúdo",
+  "homeCompleted": "concluído",
+  "navHome": "Início",
+  "navPractice": "Praticar",
+  "navStuck": "Travei",
+  "navManager": "Gestor"
+}
