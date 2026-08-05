@@ -1,0 +1,33 @@
+name: Deploy to Firebase Hosting on merge
+on:
+  push:
+    branches:
+      - main # ou master, dependendo de como está seu repo
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Baixa o código do seu repositório
+      - uses: actions/checkout@v4
+      
+      # 2. Instala o Flutter no GitHub Actions
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      # 3. Baixa os pacotes do projeto
+      - name: Install dependencies
+        run: flutter pub get
+        
+      # 4. Compila o seu projeto para Web
+      - name: Build Web
+        run: flutter build web
+        
+      # 5. Faz o deploy para o Firebase
+      - uses: FirebaseExtended/action-hosting-deploy@v3
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FUCTURACLASS }}
+          channelId: live
+          projectId: fucturaclass
