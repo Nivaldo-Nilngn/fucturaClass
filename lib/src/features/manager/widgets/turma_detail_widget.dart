@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 import '../models/course_model.dart';
+import '../../learning/views/attendance_form_view.dart';
+import '../../learning/views/taught_content_form_view.dart';
+import '../../learning/views/challenge_form_view.dart';
 
 class TurmaDetailWidget extends StatelessWidget {
   final Turma turma;
@@ -37,9 +40,9 @@ class TurmaDetailWidget extends StatelessWidget {
         children: [
           _buildBreadcrumb(),
           const SizedBox(height: AppSpacing.md),
-          _buildHeader(),
+          _buildHeader(context),
           const SizedBox(height: AppSpacing.lg),
-          _buildTabs(),
+          _buildTabs(context),
         ],
       ),
     );
@@ -81,7 +84,7 @@ class TurmaDetailWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     final statusColor = _getStatusColor(turma.status);
 
     return Row(
@@ -128,11 +131,50 @@ class TurmaDetailWidget extends StatelessWidget {
             ],
           ),
         ),
+        Row(
+          children: [
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AttendanceFormView(turma: turma, alunos: alunos),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.fact_check_outlined, size: 16),
+              label: const Text('Lançar Presença'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF00E1AB),
+                side: const BorderSide(color: Color(0xFF00E1AB)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TaughtContentFormView(turma: turma),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add_circle_outline, size: 16),
+              label: const Text('Novo Conteúdo'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5D5FEF),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildTabs() {
+  Widget _buildTabs(BuildContext context) {
     return DefaultTabController(
       length: 5,
       child: Column(
@@ -166,7 +208,7 @@ class TurmaDetailWidget extends StatelessWidget {
                 _buildProfessoresTab(),
                 _buildAlunosTab(),
                 _buildMateriaisTab(),
-                _buildDesafiosTab(),
+                _buildDesafiosTab(context),
               ],
             ),
           ),
@@ -351,7 +393,7 @@ class TurmaDetailWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDesafiosTab() {
+  Widget _buildDesafiosTab(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -362,13 +404,35 @@ class TurmaDetailWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Desafios',
-            style: GoogleFonts.hankenGrotesk(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFFE3E0F6),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Desafios',
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFE3E0F6),
+                ),
+              ),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChallengeFormView(turma: turma),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Novo Desafio'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFFFDF9E),
+                  side: const BorderSide(color: Color(0xFFFFDF9E)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
@@ -496,7 +560,7 @@ class TurmaDetailWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  professor.email,
+                  professor.cpf,
                   style: GoogleFonts.hankenGrotesk(fontSize: 11, color: const Color(0xFFC7C4D7)),
                 ),
               ],
@@ -567,7 +631,7 @@ class TurmaDetailWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  aluno.email,
+                  aluno.cpf,
                   style: GoogleFonts.hankenGrotesk(fontSize: 11, color: const Color(0xFFC7C4D7)),
                 ),
               ],

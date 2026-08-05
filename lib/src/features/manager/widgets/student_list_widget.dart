@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 
 class StudentListWidget extends StatelessWidget {
   final List<AppUser> students;
@@ -148,7 +148,7 @@ class StudentListWidget extends StatelessWidget {
         return _buildStudentCard(
           student: student,
           name: student.name,
-          turma: student.turma ?? 'Sem turma',
+          turma: student.classId ?? 'Sem turma',
           course: 'Flutter',
           level: 12,
           progress: 0.75,

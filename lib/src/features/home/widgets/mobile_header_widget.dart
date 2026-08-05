@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../auth/view_model/auth_view_model.dart';
 import '../models/home_state.dart';
 
-class MobileHeaderWidget extends StatelessWidget {
+class MobileHeaderWidget extends ConsumerWidget {
   final HomeState state;
 
   const MobileHeaderWidget({super.key, required this.state});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: const BoxDecoration(
         color: Color(0xFF1E1E2E),
@@ -66,24 +69,67 @@ class MobileHeaderWidget extends StatelessWidget {
                     constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2ECC71),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 2,
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      popupMenuTheme: PopupMenuThemeData(
+                        color: const Color(0xFF243447),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        textStyle: GoogleFonts.hankenGrotesk(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      state.initials,
-                      style: GoogleFonts.hankenGrotesk(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
+                    child: PopupMenuButton<String>(
+                      offset: const Offset(0, 48),
+                      onSelected: (value) {
+                        if (value == 'logout') {
+                          ref.read(authViewModelProvider.notifier).logout();
+                          context.go('/');
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'config',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.settings, color: Colors.white70, size: 20),
+                              const SizedBox(width: 8),
+                              const Text('Configurações'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'logout',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.logout, color: Colors.redAccent, size: 20),
+                              const SizedBox(width: 8),
+                              const Text('Sair', style: TextStyle(color: Colors.redAccent)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2ECC71),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 2,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          state.initials,
+                          style: GoogleFonts.hankenGrotesk(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:fuctura_lms_app/l10n/app_localizations.dart';
 import 'package:fuctura_lms_app/src/shared/widgets/custom_text_field.dart';
 import 'package:fuctura_lms_app/src/shared/widgets/primary_button.dart';
 import 'package:fuctura_lms_app/src/core/theme/app_spacing.dart';
@@ -17,26 +16,26 @@ class LoginFormWidget extends ConsumerStatefulWidget {
 }
 
 class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
-  final _emailController = TextEditingController(text: '');
+  final _cpfController = TextEditingController(text: '');
   final _passwordController = TextEditingController(text: '');
   bool _rememberMe = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _cpfController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _quickLogin(String email, String password) {
-    _emailController.text = email;
+  void _quickLogin(String cpf, String password) {
+    _cpfController.text = cpf;
     _passwordController.text = password;
-    ref.read(authViewModelProvider.notifier).login(email, password);
+    ref.read(authViewModelProvider.notifier).login(cpf, password);
   }
 
   void _submit() {
     ref.read(authViewModelProvider.notifier).login(
-          _emailController.text,
+          _cpfController.text,
           _passwordController.text,
         );
   }
@@ -44,7 +43,6 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authViewModelProvider);
-    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,21 +60,45 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
           children: [
             Expanded(
               child: _QuickAccessCard(
-                title: 'Administrador',
-                subtitle: 'dev@fuctura.com',
+                title: 'Admin',
+                subtitle: 'Acesso total',
                 icon: Icons.admin_panel_settings,
-                color: const Color(0xFF0041C8),
-                onTap: () => _quickLogin('dev@fuctura.com', '123456'),
+                color: const Color(0xFFE74C3C),
+                onTap: () => _quickLogin('00000000000', '123456'),
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: _QuickAccessCard(
                 title: 'Aluno',
-                subtitle: 'aluno@fuctura.com',
+                subtitle: 'Painel e aulas',
                 icon: Icons.school,
                 color: const Color(0xFF2ECC71),
-                onTap: () => _quickLogin('aluno@fuctura.com', '123456'),
+                onTap: () => _quickLogin('11111111111', '123456'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: _QuickAccessCard(
+                title: 'Professor',
+                subtitle: 'Gestão de turmas',
+                icon: Icons.cast_for_education,
+                color: const Color(0xFF3498DB),
+                onTap: () => _quickLogin('22222222222', '123456'),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: _QuickAccessCard(
+                title: 'Secretaria',
+                subtitle: 'Gestão acadêmica',
+                icon: Icons.support_agent,
+                color: const Color(0xFFF39C12),
+                onTap: () => _quickLogin('33333333333', '123456'),
               ),
             ),
           ],
@@ -88,7 +110,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Text(
-                'ou entre com e-mail',
+                'ou entre com seu CPF',
                 style: TextStyle(color: Colors.grey[500], fontSize: 12),
               ),
             ),
@@ -97,18 +119,18 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
         ),
         const SizedBox(height: AppSpacing.xl),
         CustomTextField(
-          controller: _emailController,
-          label: l10n.loginEmailLabel,
-          hint: l10n.loginEmailHint,
-          prefixIcon: Icons.mail_outline,
-          keyboardType: TextInputType.emailAddress,
-          onChanged: (val) => _emailController.text = val,
+          controller: _cpfController,
+          label: 'CPF',
+          hint: 'Digite seu CPF',
+          prefixIcon: Icons.badge_outlined,
+          keyboardType: TextInputType.number,
+          onChanged: (val) => _cpfController.text = val,
         ),
         const SizedBox(height: AppSpacing.lg),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.loginPasswordLabel, style: Theme.of(context).textTheme.labelSmall),
+            Text('Senha', style: Theme.of(context).textTheme.labelSmall),
             TextButton(
               onPressed: () {},
               style: TextButton.styleFrom(
@@ -117,7 +139,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: Text(
-                l10n.loginForgotPassword,
+                'Esqueceu a senha?',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
@@ -131,7 +153,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
         CustomTextField(
           controller: _passwordController,
           label: '',
-          hint: l10n.loginPasswordHint,
+          hint: 'Digite sua senha',
           prefixIcon: Icons.lock_outline,
           obscureText: true,
           onChanged: (val) => _passwordController.text = val,
@@ -151,7 +173,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             ),
             const SizedBox(width: 12),
             Text(
-              l10n.loginRememberMe,
+              'Lembrar de mim',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -167,7 +189,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             ),
           ),
         PrimaryButton(
-          text: l10n.loginSubmitButton,
+          text: 'Entrar',
           isLoading: authState.status == AuthStatus.loading,
           onPressed: _submit,
         ),
@@ -222,6 +244,7 @@ class _QuickAccessCard extends StatelessWidget {
                 color: Colors.grey[600],
                 fontSize: 11,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

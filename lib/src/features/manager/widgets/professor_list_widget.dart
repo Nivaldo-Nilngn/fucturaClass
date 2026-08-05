@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 
 class ProfessorListWidget extends StatelessWidget {
   final List<AppUser> professors;
@@ -114,13 +114,13 @@ class _ProfessorCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  professor.email,
+                  professor.cpf,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[600],
                   ),
                 ),
-                if (professor.turma != null) ...[
+                if (professor.classId != null) ...[
                   const SizedBox(height: 4),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -129,7 +129,7 @@ class _ProfessorCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      professor.turma!,
+                      professor.classId!,
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.orange[700],

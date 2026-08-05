@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/admin_state.dart';
 import '../models/course_model.dart';
 import '../../auth/view_model/auth_view_model.dart';
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 
 class AdminViewModel extends Notifier<AdminDashboardState> {
   @override
@@ -16,7 +16,7 @@ class AdminViewModel extends Notifier<AdminDashboardState> {
         ? ref.read(authViewModelProvider.notifier).users
         : <AppUser>[];
 
-    final students = users.where((u) => u.role == UserRole.aluno).toList();
+    final students = users.where((u) => u.role == UserRole.student).toList();
     final professors = users.where((u) => u.role == UserRole.professor).toList();
 
     return AdminDashboardState(
@@ -99,34 +99,24 @@ class AdminViewModel extends Notifier<AdminDashboardState> {
   // === Student CRUD ===
 
   void addStudent({required String name, required String email, String? turma}) {
-    ref.read(authViewModelProvider.notifier).registerUser(
-          name: name,
-          email: email,
-          role: UserRole.aluno,
-          turma: turma,
-        );
+    // TODO: Implement user registration via Firebase Secondary App
     _refresh();
   }
 
   void removeStudent(String id) {
-    ref.read(authViewModelProvider.notifier).removeUser(id);
+    // TODO: Implement user removal via Firebase
     _refresh();
   }
 
   // === Professor CRUD ===
 
   void addProfessor({required String name, required String email, String? turma}) {
-    ref.read(authViewModelProvider.notifier).registerUser(
-          name: name,
-          email: email,
-          role: UserRole.professor,
-          turma: turma,
-        );
+    // TODO: Implement user registration via Firebase Secondary App
     _refresh();
   }
 
   void removeProfessor(String id) {
-    ref.read(authViewModelProvider.notifier).removeUser(id);
+    // TODO: Implement user removal via Firebase
     _refresh();
   }
 
@@ -245,7 +235,7 @@ class AdminViewModel extends Notifier<AdminDashboardState> {
         ? ref.read(authViewModelProvider.notifier).users
         : <AppUser>[];
 
-    final students = users.where((u) => u.role == UserRole.aluno).toList();
+    final students = users.where((u) => u.role == UserRole.student).toList();
     final professors = users.where((u) => u.role == UserRole.professor).toList();
 
     state = AdminDashboardState(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 import '../models/course_model.dart';
 
 class CourseManagementWidget extends StatelessWidget {
@@ -496,7 +496,7 @@ class CourseManagementWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  professor.email,
+                  professor.cpf,
                   style: GoogleFonts.hankenGrotesk(fontSize: 10, color: const Color(0xFFC7C4D7)),
                 ),
               ],

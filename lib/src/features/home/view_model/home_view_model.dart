@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/home_state.dart';
 import '../../auth/view_model/auth_view_model.dart';
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 
 class HomeViewModel extends AsyncNotifier<HomeState> {
   @override
@@ -30,10 +30,11 @@ class HomeViewModel extends AsyncNotifier<HomeState> {
   HomeState _buildStateForUser(AppUser user) {
     switch (user.role) {
       case UserRole.admin:
+      case UserRole.secretary:
         return _adminState(user);
       case UserRole.professor:
         return _professorState(user);
-      case UserRole.aluno:
+      case UserRole.student:
         return _alunoState(user);
     }
   }
@@ -72,12 +73,12 @@ class HomeViewModel extends AsyncNotifier<HomeState> {
       firstName: user.name.split(' ').first,
       fullName: user.name,
       initials: _getInitials(user.name),
-      badge1: 'FUCTURA',
-      badge2: user.turma ?? 'PROFESSOR',
+      badge1: 'FUCTURA CLASS',
+      badge2: user.classId ?? 'PROFESSOR',
       points: 0,
       streak: 0,
       rankPosition: 0,
-      moduleName: user.modulo ?? 'Meus Cursos',
+      moduleName: user.academyId ?? 'Meus Cursos',
       moduleSubtitle: 'Gerenciar aulas e alunos',
       moduleProgressPercent: 0,
       nextClassTopic: 'Próxima Aula',
@@ -101,12 +102,12 @@ class HomeViewModel extends AsyncNotifier<HomeState> {
       firstName: user.name.split(' ').first,
       fullName: user.name,
       initials: _getInitials(user.name),
-      badge1: 'FUCTURA',
-      badge2: user.turma ?? 'TURMA',
-      points: 2847,
+      badge1: 'BIBLIA 3D KIDS',
+      badge2: user.classId ?? 'TURMA',
+      points: 1250,
       streak: 6,
       rankPosition: 3,
-      moduleName: user.modulo ?? 'Módulo 3',
+      moduleName: user.academyId ?? 'Módulo 3',
       moduleSubtitle: 'Lógica de Programação',
       moduleProgressPercent: 60,
       nextClassTopic: 'Programação Orientada a Objetos',

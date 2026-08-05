@@ -1,4 +1,4 @@
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 import 'course_model.dart';
 
 class AdminDashboardState {

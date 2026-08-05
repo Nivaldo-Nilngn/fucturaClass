@@ -12,8 +12,9 @@ import '../widgets/student_detail_widget.dart';
 import '../widgets/professor_list_widget.dart';
 import '../widgets/course_management_widget.dart';
 import '../widgets/turma_detail_widget.dart';
-import '../../auth/models/app_user.dart';
-// import '../../auth/view_model/auth_view_model.dart'; // Unused
+import '../../../core/models/user_model.dart';
+import 'users_list_view.dart';
+import '../../gamification/views/auction_management_view.dart';
 
 class ManagerView extends ConsumerStatefulWidget {
   const ManagerView({super.key});
@@ -102,12 +103,29 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
             ),
             const SizedBox(width: AppSpacing.lg),
             IconButton(
+              tooltip: 'Gerenciar Usuários (Firebase)',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const UsersListView()),
+                );
+              },
+              icon: const Icon(Icons.people_alt, color: Color(0xFF00E1AB), size: 22),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            IconButton(
               onPressed: () {},
               icon: const Icon(Icons.notifications_outlined, color: Color(0xFFC7C4D7), size: 22),
             ),
             const SizedBox(width: AppSpacing.sm),
             IconButton(
-              onPressed: () {},
+              tooltip: 'Gerenciar Leilões',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AuctionManagementView(academyId: 'mock_academy')),
+                );
+              },
               icon: const Icon(Icons.emoji_events_outlined, color: Color(0xFFC7C4D7), size: 22),
             ),
             const SizedBox(width: AppSpacing.md),

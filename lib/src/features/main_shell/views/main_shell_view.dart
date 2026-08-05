@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/models/user_model.dart';
 import '../../auth/view_model/auth_view_model.dart';
 
 class MainShellView extends ConsumerWidget {
@@ -99,10 +101,9 @@ class MainShellView extends ConsumerWidget {
                                   ),
                                 ],
                               )
-                            : Image.asset(
-                                'assets/logo.jpg',
+                            : SvgPicture.asset(
+                                'assets/logoFuctura.svg',
                                 height: 32,
-                                fit: BoxFit.contain,
                               )
                       else
                         Container(

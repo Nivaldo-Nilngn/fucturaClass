@@ -1,41 +1,41 @@
-import 'app_user.dart';
+import '../../../core/models/user_model.dart';
 
 enum AuthStatus { initial, loading, success, error }
 
 class AuthState {
   final AuthStatus status;
-  final String? userEmail;
+  final String? userCpf;
   final AppUser? user;
   final String? errorMessage;
 
   const AuthState({
     this.status = AuthStatus.initial,
-    this.userEmail,
+    this.userCpf,
     this.user,
     this.errorMessage,
   });
 
   const AuthState.initial()
       : status = AuthStatus.initial,
-        userEmail = null,
+        userCpf = null,
         user = null,
         errorMessage = null;
 
   const AuthState.loading()
       : status = AuthStatus.loading,
-        userEmail = null,
+        userCpf = null,
         user = null,
         errorMessage = null;
 
   AuthState.success(AppUser user)
       : status = AuthStatus.success,
-        userEmail = user.email,
+        userCpf = user.cpf,
         user = user,
         errorMessage = null;
 
   const AuthState.error(String message)
       : status = AuthStatus.error,
-        userEmail = null,
+        userCpf = null,
         user = null,
         errorMessage = message;
 }

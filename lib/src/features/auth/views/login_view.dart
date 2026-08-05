@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fuctura_lms_app/l10n/app_localizations.dart';
 import 'package:fuctura_lms_app/src/core/theme/app_spacing.dart';
 import 'package:fuctura_lms_app/src/features/auth/models/auth_state.dart';
@@ -33,8 +34,10 @@ class LoginView extends ConsumerWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isMobile = constraints.maxWidth < AppSpacing.mobileBreakpoint;
-          return Row(
+          return Stack(
             children: [
+              Row(
+                children: [
               // Left Side: Brand Identity (Hidden on mobile)
               if (!isMobile)
                 Expanded(
@@ -57,48 +60,10 @@ class LoginView extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 // Logo
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF00E1AB),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        'F',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w900,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Fuctura',
-                                          style: TextStyle(
-                                            color: const Color(0xFFC1C1FF),
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                        Text(
-                                          'cursos de tecnologia',
-                                          style: TextStyle(
-                                            color: const Color(0xFFC7C4D7),
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                SvgPicture.asset(
+                                  'assets/logoFucturaColor.svg',
+                                  height: 64,
+                                  fit: BoxFit.contain,
                                 ),
                                 const SizedBox(height: AppSpacing.xl),
                                 Text(
@@ -146,9 +111,9 @@ class LoginView extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.background,
                   child: Center(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: AppSpacing.xxl, 
-                        vertical: AppSpacing.xxxl
+                        vertical: isMobile ? AppSpacing.md : AppSpacing.xxxl
                       ),
                       child: Container(
                         constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
@@ -157,11 +122,19 @@ class LoginView extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             if (isMobile) ...[
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: IconButton(
+                                  icon: const Icon(Icons.arrow_back_rounded),
+                                  onPressed: () => context.go('/'),
+                                  tooltip: 'Voltar ao Portal',
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
                               Center(
-                                child: Image.asset(
-                                  'assets/logo.jpg',
-                                  width: AppSpacing.logoSizeMobile,
-                                  height: AppSpacing.logoSizeMobile,
+                                child: SvgPicture.asset(
+                                  'assets/logoFucturaColor.svg',
+                                  height: 48,
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -180,10 +153,9 @@ class LoginView extends ConsumerWidget {
                               style: Theme.of(context).textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: AppSpacing.xxl),
-                            const SizedBox(height: AppSpacing.lg),
+                            SizedBox(height: isMobile ? AppSpacing.lg : AppSpacing.xxl),
                             const LoginFormWidget(),
-                            const SizedBox(height: AppSpacing.xxxl),
+                            SizedBox(height: isMobile ? AppSpacing.md : AppSpacing.xxxl),
                             Center(
                               child: Wrap(
                                 alignment: WrapAlignment.center,
@@ -215,6 +187,47 @@ class LoginView extends ConsumerWidget {
                             ),
                           ],
                         ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+                ],
+              ),
+              // Back Button
+              if (!isMobile)
+                Positioned(
+                top: AppSpacing.xl,
+                left: AppSpacing.xl,
+                child: Tooltip(
+                  message: 'Voltar ao Portal',
+                  child: InkWell(
+                    onTap: () => context.go('/'),
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.arrow_back_rounded, color: Colors.black54),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Voltar',
+                            style: GoogleFonts.hankenGrotesk(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

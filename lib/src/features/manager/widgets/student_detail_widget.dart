@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../auth/models/app_user.dart';
+import '../../../core/models/user_model.dart';
 
 class StudentDetailWidget extends StatelessWidget {
   final AppUser student;
@@ -112,7 +112,7 @@ class StudentDetailWidget extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Turma: ${student.turma ?? 'Sábado'} · ${student.modulo ?? 'Lógica de Programação'}',
+                'Turma: ${student.classId ?? 'Sábado'} · ${student.academyId ?? 'Lógica de Programação'}',
                 style: GoogleFonts.hankenGrotesk(fontSize: 13, color: const Color(0xFFC7C4D7)),
               ),
             ],
