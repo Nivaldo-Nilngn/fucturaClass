@@ -12,9 +12,7 @@ class AdminViewModel extends Notifier<AdminDashboardState> {
 
   AdminDashboardState _loadData() {
     final authState = ref.read(authViewModelProvider);
-    final users = authState.user != null
-        ? ref.read(authViewModelProvider.notifier).users
-        : <AppUser>[];
+    final users = authState.user != null ? _mockUsers : <AppUser>[];
 
     final students = users.where((u) => u.role == UserRole.student).toList();
     final professors = users.where((u) => u.role == UserRole.professor).toList();
@@ -231,9 +229,7 @@ class AdminViewModel extends Notifier<AdminDashboardState> {
 
   void _refresh() {
     final authState = ref.read(authViewModelProvider);
-    final users = authState.user != null
-        ? ref.read(authViewModelProvider.notifier).users
-        : <AppUser>[];
+    final users = authState.user != null ? _mockUsers : <AppUser>[];
 
     final students = users.where((u) => u.role == UserRole.student).toList();
     final professors = users.where((u) => u.role == UserRole.professor).toList();
@@ -277,6 +273,12 @@ class AdminViewModel extends Notifier<AdminDashboardState> {
       name: 'Java 1',
       description: 'Introdução à programação orientada a objetos com Java.',
     ),
+  ];
+
+  static final List<AppUser> _mockUsers = [
+    AppUser(id: '1', name: 'Admin Fuctura', cpf: '00000000000', role: UserRole.admin, createdAt: DateTime.now()),
+    AppUser(id: '2', name: 'Rafael Souza', cpf: '11111111111', role: UserRole.student, createdAt: DateTime.now()),
+    AppUser(id: '3', name: 'Prof. Carlos', cpf: '22222222222', role: UserRole.professor, createdAt: DateTime.now()),
   ];
 
   static final List<Turma> _mockTurmas = [

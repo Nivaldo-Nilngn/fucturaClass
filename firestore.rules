@@ -1,0 +1,114 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- FUNÇÕES DE AUTENTICAÇÃO E PERFIS ---
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && getUserData().role == 'admin';
+    }
+    
+    function isSecretary() {
+      return isAuthenticated() && getUserData().role == 'secretary';
+    }
+    
+    function isProfessor() {
+      return isAuthenticated() && getUserData().role == 'professor';
+    }
+    
+    function isStudent() {
+      return isAuthenticated() && getUserData().role == 'student';
+    }
+
+    function isStaff() {
+      return isAdmin() || isSecretary();
+    }
+
+    // --- REGRAS POR COLEÇÃO ---
+
+    // 1. Coleção de Usuários
+    match /users/{userId} {
+      // Qualquer um autenticado pode ler os usuários para saber quem são os professores e alunos
+      allow read: if isAuthenticated();
+      // O usuário logado pode criar o próprio cadastro, ou admin/secretário gerenciam
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update, delete: if isStaff();
+      // O usuário logado pode editar o próprio perfil (mas não pode mudar seu nível de acesso 'role')
+      allow update: if isAuthenticated() && request.auth.uid == userId && 
+                    (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'cpf']));
+    }
+
+    // 2. Regras de Negócio (Settings)
+    match /settings/{docId} {
+      allow read: if true; // Todos podem ler as regras do sistema
+      allow write: if isAdmin(); // Apenas administrador pode alterá-las
+      
+      // Subcoleções do settings (ex: rules estruturadas que criamos)
+      match /{document=**} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    // 3. Estrutura Acadêmica (Academias e Turmas)
+    match /academies/{academyId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin(); // Somente admin cria Academias
+    }
+    
+    match /classes/{classId} { // Turmas
+      allow read: if isAuthenticated();
+      allow write: if isStaff(); // Admin e Secretário podem gerenciar turmas
+    }
+
+    // 4. Gamificação: Desafios, Perguntas e Exercícios
+    match /challenges/{challengeId} {
+      allow read: if isAuthenticated(); // Alunos precisam ler para participar
+      allow create, update, delete: if isStaff() || isProfessor(); // Professor cria/corrige
+    }
+    
+    match /questions/{questionId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isStaff() || isProfessor();
+    }
+
+    // 5. Pontuação e Extrato
+    match /extracts/{extractId} {
+      // Todo mundo pode ler seu próprio extrato ou se for admin/secretário/professor
+      allow read: if isStaff() || isProfessor() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      // O lançamento de pontos é seguro através das cloud functions, 
+      // mas pelo client permitimos secretário corrigir/lançar. 
+      // (Na vida real, a maioria das escritas de extrato deveria vir de uma Cloud Function).
+      allow create: if isStaff() || isProfessor() || (isAuthenticated() && request.resource.data.userId == request.auth.uid);
+      // NUNCA PODE APAGAR NENHUM REGISTRO DE EXTRATO CONFORME A REGRA DE NEGÓCIO
+      allow delete, update: if false; 
+    }
+
+    // 6. Leilões
+    match /auctions/{auctionId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaff(); // Secretaria/Admin abre e fecha leilões
+      
+      match /bids/{bidId} { // Lances nos leilões
+        allow read: if isAuthenticated();
+        // Aluno pode dar o próprio lance
+        allow create: if isStudent() && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if isStaff(); // Apenas sistema/staff pode remover ou atualizar status de lance
+      }
+    }
+
+    // Regra de segurança geral (Fallback para bloquear o que não foi explicitamente permitido)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

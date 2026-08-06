@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/views/portal_view.dart';
-import '../../features/auth/views/login_view.dart';
-import '../../features/auth/views/kids_login_view.dart';
+import '../../features/auth/views/unified_auth_view.dart';
 import '../../features/auth/view_model/auth_view_model.dart';
 import '../../core/models/user_model.dart';
 import '../../features/home/views/home_view.dart';
+import '../../features/profile/views/profile_completion_view.dart';
 import '../../features/home/views/kids_home_view.dart';
 import '../../features/main_shell/views/main_shell_view.dart';
 import '../../features/main_shell/views/kids_main_shell_view.dart';
@@ -14,6 +13,7 @@ import '../../features/code_exercises/views/code_editor_view.dart';
 import '../../features/support/views/stuck_view.dart';
 import '../../features/manager/views/manager_view.dart';
 import '../../features/manager/views/desafios_view.dart';
+import '../../features/manager/views/business_rules_view.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -26,7 +26,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final authState = ref.read(authViewModelProvider);
       final isLoggedIn = authState.user != null;
-      final isLoginRoute = state.matchedLocation == '/' || state.matchedLocation == '/fuctura-login' || state.matchedLocation == '/kids-login';
+      final isLoginRoute = state.matchedLocation == '/';
       final user = authState.user;
       final isStaff = user?.role == UserRole.admin || user?.role == UserRole.secretary;
 
@@ -36,7 +36,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (isLoggedIn && isLoginRoute) {
         if (isStaff) return '/manager/dashboard';
-        if (state.matchedLocation == '/kids-login') return '/kids-home';
+        if (user?.academyId == 'biblia3d') return '/kids-home';
         return '/home';
       }
 
@@ -56,17 +56,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const PortalView(),
+        builder: (context, state) => const UnifiedAuthView(),
       ),
       GoRoute(
-        path: '/fuctura-login',
+        path: '/profile-completion',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const LoginView(),
-      ),
-      GoRoute(
-        path: '/kids-login',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const KidsLoginView(),
+        builder: (context, state) => const ProfileCompletionView(),
       ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -118,6 +113,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: 'desafios',
                 parentNavigatorKey: _shellNavigatorKey,
                 builder: (context, state) => const DesafiosView(),
+              ),
+              GoRoute(
+                path: 'business-rules',
+                parentNavigatorKey: _shellNavigatorKey,
+                builder: (context, state) => const BusinessRulesView(),
               ),
             ],
           ),

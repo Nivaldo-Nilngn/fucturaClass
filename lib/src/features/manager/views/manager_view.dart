@@ -15,6 +15,8 @@ import '../widgets/turma_detail_widget.dart';
 import '../../../core/models/user_model.dart';
 import 'users_list_view.dart';
 import '../../gamification/views/auction_management_view.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../auth/view_model/auth_view_model.dart';
 
 class ManagerView extends ConsumerStatefulWidget {
   const ManagerView({super.key});
@@ -29,6 +31,9 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
     final adminState = ref.watch(adminViewModelProvider);
     final adminNotifier = ref.read(adminViewModelProvider.notifier);
     final location = GoRouterState.of(context).uri.path;
+
+    final authState = ref.watch(authViewModelProvider);
+    AppUser? currentUser = authState.user;
 
     AdminTab currentTab = adminState.selectedTab;
     if (location.startsWith('/manager/students')) {
@@ -49,22 +54,23 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
 
     return Scaffold(
       body: SafeArea(
-        child: _buildContent(adminState, adminNotifier),
+        child: _buildContent(adminState, adminNotifier, currentUser),
       ),
     );
   }
 
-
-  Widget _buildContent(AdminDashboardState state, AdminViewModel notifier) {
+  Widget _buildContent(AdminDashboardState state, AdminViewModel notifier, AppUser? currentUser) {
     return Column(
       children: [
-        _buildHeader(),
+        _buildHeader(context, currentUser),
         Expanded(child: _buildPageContent(state, notifier)),
       ],
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, AppUser? currentUser) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return Container(
       height: 64,
       decoration: const BoxDecoration(
@@ -75,104 +81,150 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Row(
           children: [
-            Expanded(
-              child: Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A2A),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF464555)),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: AppSpacing.md),
-                    const Icon(Icons.search, color: Color(0xFF908FA0), size: 20),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        'Search courses, docs, community...',
-                        style: GoogleFonts.hankenGrotesk(
-                          color: const Color(0xFF908FA0),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            // Logo Fuctura
+            SvgPicture.asset(
+              'assets/logoFucturaColor.svg',
+              height: 24,
             ),
             const SizedBox(width: AppSpacing.lg),
+            
+            if (!isMobile)
+              Expanded(
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A2A),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFF464555)),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: AppSpacing.md),
+                      const Icon(Icons.search, color: Color(0xFF908FA0), size: 20),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          'Search courses, docs, community...',
+                          style: GoogleFonts.hankenGrotesk(
+                            color: const Color(0xFF908FA0),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              const Spacer(),
+            if (!isMobile) const SizedBox(width: AppSpacing.lg),
+            
+            if (!isMobile) ...[
+              IconButton(
+                tooltip: 'Gerenciar Usuários',
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const UsersListView()));
+                },
+                icon: const Icon(Icons.people_alt, color: Color(0xFF00E1AB), size: 22),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton(
+                tooltip: 'Regras de Negócio',
+                onPressed: () => context.go('/manager/business-rules'),
+                icon: const Icon(Icons.policy_outlined, color: Color(0xFFC7C4D7), size: 22),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton(
+                tooltip: 'Gerenciar Leilões',
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AuctionManagementView(academyId: 'mock_academy')));
+                },
+                icon: const Icon(Icons.emoji_events_outlined, color: Color(0xFFC7C4D7), size: 22),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Container(width: 1, height: 32, color: const Color(0xFF464555)),
+              const SizedBox(width: AppSpacing.md),
+            ],
+
             IconButton(
-              tooltip: 'Gerenciar Usuários (Firebase)',
+              tooltip: 'Avisos do Sistema',
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const UsersListView()),
+                showDialog(
+                  context: context,
+                  builder: (dialogContext) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    alignment: Alignment.topRight,
+                    insetPadding: const EdgeInsets.only(top: 64, right: 16),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 400),
+                      child: _buildAvisosCard(dialogContext),
+                    ),
+                  ),
                 );
               },
-              icon: const Icon(Icons.people_alt, color: Color(0xFF00E1AB), size: 22),
+              icon: const Icon(Icons.notifications_active, color: Color(0xFFFFDF9E), size: 22),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.notifications_outlined, color: Color(0xFFC7C4D7), size: 22),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            IconButton(
-              tooltip: 'Gerenciar Leilões',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AuctionManagementView(academyId: 'mock_academy')),
-                );
-              },
-              icon: const Icon(Icons.emoji_events_outlined, color: Color(0xFFC7C4D7), size: 22),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Container(
-              width: 1,
-              height: 32,
-              color: const Color(0xFF464555),
-            ),
-            const SizedBox(width: AppSpacing.md),
+            if (!isMobile) const SizedBox(width: AppSpacing.sm),
+
             Row(
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Admin Fuctura',
-                      style: GoogleFonts.hankenGrotesk(
-                        color: const Color(0xFFE3E0F6),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                if (!isMobile)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        currentUser?.name ?? 'Carregando...',
+                        style: GoogleFonts.hankenGrotesk(color: const Color(0xFFE3E0F6), fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        currentUser?.role.name.toUpperCase() ?? 'ADMINISTRADOR',
+                        style: GoogleFonts.jetBrainsMono(color: const Color(0xFFC7C4D7), fontSize: 10),
+                      ),
+                    ],
+                  ),
+                if (!isMobile) const SizedBox(width: AppSpacing.md),
+                PopupMenuButton<String>(
+                  offset: const Offset(0, 50),
+                  color: const Color(0xFF1E1E2E),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onSelected: (value) {
+                    if (value == 'logout') {
+                      ref.read(authViewModelProvider.notifier).logout();
+                      context.go('/auth');
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'settings',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.settings, color: Color(0xFFC7C4D7), size: 18),
+                          const SizedBox(width: 8),
+                          Text('Configurações', style: GoogleFonts.hankenGrotesk(color: const Color(0xFFE3E0F6))),
+                        ],
                       ),
                     ),
-                    Text(
-                      'ADMINISTRADOR',
-                      style: GoogleFonts.jetBrainsMono(
-                        color: const Color(0xFFC7C4D7),
-                        fontSize: 10,
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.logout, color: Colors.redAccent, size: 18),
+                          const SizedBox(width: 8),
+                          Text('Sair', style: GoogleFonts.hankenGrotesk(color: Colors.redAccent)),
+                        ],
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF5D5FEF),
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'AF',
-                    style: GoogleFonts.hankenGrotesk(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(color: Color(0xFF5D5FEF), shape: BoxShape.circle),
+                    alignment: Alignment.center,
+                    child: Text(
+                      currentUser != null ? _getInitials(currentUser.name) : '...',
+                      style: GoogleFonts.hankenGrotesk(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w800),
                     ),
                   ),
                 ),
@@ -247,18 +299,31 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
   }
 
   Widget _buildLeftContent(AdminDashboardState state, AdminViewModel notifier) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(child: _buildStatCard('TOTAL ALUNOS', state.totalStudents.toString(), Icons.people_outlined, const Color(0xFF00E1AB), '+12%')),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(child: _buildStatCard('PROFESSORES', state.totalProfessors.toString(), Icons.school_outlined, const Color(0xFFFFDF9E), 'Ativos')),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(child: _buildStatCard('CURSOS', state.totalCourses.toString(), Icons.library_books_outlined, const Color(0xFF5D5FEF), '+2')),
-          ],
-        ),
+        if (isMobile)
+          Column(
+            children: [
+              _buildStatCard('TOTAL ALUNOS', state.totalStudents.toString(), Icons.people_outlined, const Color(0xFF00E1AB), '+12%'),
+              const SizedBox(height: AppSpacing.md),
+              _buildStatCard('PROFESSORES', state.totalProfessors.toString(), Icons.school_outlined, const Color(0xFFFFDF9E), 'Ativos'),
+              const SizedBox(height: AppSpacing.md),
+              _buildStatCard('CURSOS', state.totalCourses.toString(), Icons.library_books_outlined, const Color(0xFF5D5FEF), '+2'),
+            ],
+          )
+        else
+          Row(
+            children: [
+              Expanded(child: _buildStatCard('TOTAL ALUNOS', state.totalStudents.toString(), Icons.people_outlined, const Color(0xFF00E1AB), '+12%')),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: _buildStatCard('PROFESSORES', state.totalProfessors.toString(), Icons.school_outlined, const Color(0xFFFFDF9E), 'Ativos')),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: _buildStatCard('CURSOS', state.totalCourses.toString(), Icons.library_books_outlined, const Color(0xFF5D5FEF), '+2')),
+            ],
+          ),
         const SizedBox(height: AppSpacing.lg),
         _buildCoursesTable(state, notifier),
       ],
@@ -356,77 +421,131 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
               ],
             ),
           ),
-          Table(
-            columnWidths: const {
-              0: FlexColumnWidth(3),
-              1: FlexColumnWidth(1.5),
-              2: FlexColumnWidth(1),
-              3: FlexColumnWidth(0.5),
-            },
-            children: [
-              TableRow(
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFF464555), width: 0.5)),
-                ),
-                children: [
-                  _buildTableHeader('NOME DO CURSO'),
-                  _buildTableHeader('ALUNOS INSCRITOS'),
-                  _buildTableHeader('STATUS'),
-                  _buildTableHeader('AÇÃO'),
-                ],
-              ),
-              ...state.courses.map((course) => TableRow(
+          if (MediaQuery.of(context).size.width < 600)
+            Column(
+              children: state.courses.map((course) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
                 decoration: const BoxDecoration(
                   border: Border(bottom: BorderSide(color: Color(0xFF464555), width: 0.3)),
                 ),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF5D5FEF).withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(6),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF5D5FEF).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.code, color: Color(0xFF5D5FEF), size: 16),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            course.name,
+                            style: GoogleFonts.hankenGrotesk(color: const Color(0xFFE3E0F6), fontSize: 14, fontWeight: FontWeight.w600),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          alignment: Alignment.center,
-                          child: Icon(Icons.code, color: const Color(0xFF5D5FEF), size: 16),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${state.turmasByCurso(course.id).length} turmas • ${state.studentsByTurma('all').length} alunos',
+                            style: GoogleFonts.hankenGrotesk(color: const Color(0xFFC7C4D7), fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildStatusBadge(true),
+                  ],
+                ),
+              )).toList(),
+            )
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 600),
+                child: Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(3),
+                    1: FlexColumnWidth(1.5),
+                    2: FlexColumnWidth(1),
+                    3: FlexColumnWidth(0.5),
+                  },
+                  children: [
+                    TableRow(
+                      decoration: const BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Color(0xFF464555), width: 0.5)),
+                      ),
+                      children: [
+                        _buildTableHeader('NOME DO CURSO'),
+                        _buildTableHeader('ALUNOS INSCRITOS'),
+                        _buildTableHeader('STATUS'),
+                        _buildTableHeader('AÇÃO'),
+                      ],
+                    ),
+                    ...state.courses.map((course) => TableRow(
+                      decoration: const BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Color(0xFF464555), width: 0.3)),
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF5D5FEF).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(Icons.code, color: Color(0xFF5D5FEF), size: 16),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  course.name,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    color: const Color(0xFFE3E0F6),
+                                    fontSize: 13,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          course.name,
-                          style: GoogleFonts.hankenGrotesk(
-                            color: const Color(0xFFE3E0F6),
-                            fontSize: 13,
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            '${state.turmasByCurso(course.id).length} turmas',
+                            style: GoogleFonts.hankenGrotesk(color: const Color(0xFFC7C4D7), fontSize: 13),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: _buildStatusBadge(true),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.more_vert, color: Color(0xFFC7C4D7), size: 18),
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      '${state.turmasByCurso(course.id).length} turmas',
-                      style: GoogleFonts.hankenGrotesk(color: const Color(0xFFC7C4D7), fontSize: 13),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: _buildStatusBadge(true),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_vert, color: Color(0xFFC7C4D7), size: 18),
-                    ),
-                  ),
-                ],
-              )),
-            ],
-          ),
+                    )),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -483,8 +602,6 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
     return Column(
       children: [
         _buildRankingCard(state),
-        const SizedBox(height: AppSpacing.lg),
-        _buildAvisosCard(),
       ],
     );
   }
@@ -605,7 +722,7 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
     );
   }
 
-  Widget _buildAvisosCard() {
+  Widget _buildAvisosCard(BuildContext dialogContext) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -615,14 +732,26 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Avisos do Sistema',
-            style: GoogleFonts.hankenGrotesk(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFFE3E0F6),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Avisos do Sistema',
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFE3E0F6),
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                icon: const Icon(Icons.close, color: Color(0xFFC7C4D7), size: 18),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
           _buildAvisoItem('Hoje, 10:00', 'Manutenção programada no servidor de banco de dados.', const Color(0xFFFFDF9E)),
@@ -1072,5 +1201,14 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
         ],
       ),
     );
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return '??';
+    final parts = name.trim().split(' ');
+    if (parts.length > 1) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length > 1 ? 2 : 1).toUpperCase();
   }
 }

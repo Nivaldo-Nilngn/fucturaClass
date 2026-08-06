@@ -40,7 +40,7 @@ class MainShellView extends ConsumerWidget {
                 selectedIndex: currentIndex,
                 onDestinationSelected: (index) => _onItemTapped(index, context, isAdmin),
                 backgroundColor: const Color(0xFF1E1E2E),
-                indicatorColor: const Color(0xFF00E1AB),
+                indicatorColor: const Color(0xFF0055FF),
                 elevation: 0,
                 height: 65,
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
@@ -77,7 +77,7 @@ class MainShellView extends ConsumerWidget {
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF2ECC71),
+                                      color: const Color(0xFF0055FF),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     alignment: Alignment.center,
@@ -102,7 +102,7 @@ class MainShellView extends ConsumerWidget {
                                 ],
                               )
                             : SvgPicture.asset(
-                                'assets/logoFuctura.svg',
+                                'assets/logoFucturaColor.svg',
                                 height: 32,
                               )
                       else
@@ -110,7 +110,7 @@ class MainShellView extends ConsumerWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: isAdmin ? const Color(0xFF2ECC71) : Theme.of(context).colorScheme.primary,
+                            color: isAdmin ? const Color(0xFF0055FF) : Theme.of(context).colorScheme.primary,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           alignment: Alignment.center,

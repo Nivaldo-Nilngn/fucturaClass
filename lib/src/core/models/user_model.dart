@@ -14,6 +14,16 @@ class AppUser {
   final String? classId;
   final DateTime createdAt;
   final bool isActive;
+  final String? phone;
+  final String? address;
+  final String? city;
+  final DateTime? birthDate;
+  final String? motherName;
+  final String? fatherName;
+  final String? financialResponsible;
+  final String? legalResponsible;
+  final String? email;
+  final bool isProfileComplete;
 
   const AppUser({
     required this.id,
@@ -24,6 +34,16 @@ class AppUser {
     this.classId,
     required this.createdAt,
     this.isActive = true,
+    this.phone,
+    this.address,
+    this.city,
+    this.birthDate,
+    this.motherName,
+    this.fatherName,
+    this.financialResponsible,
+    this.legalResponsible,
+    this.email,
+    this.isProfileComplete = false,
   });
 
   bool get isAdmin => role == UserRole.admin;
@@ -41,6 +61,16 @@ class AppUser {
       'classId': classId,
       'createdAt': createdAt.toIso8601String(),
       'isActive': isActive,
+      'phone': phone,
+      'address': address,
+      'city': city,
+      'birthDate': birthDate?.toIso8601String(),
+      'motherName': motherName,
+      'fatherName': fatherName,
+      'financialResponsible': financialResponsible,
+      'legalResponsible': legalResponsible,
+      'email': email,
+      'isProfileComplete': isProfileComplete,
     };
   }
 
@@ -55,8 +85,24 @@ class AppUser {
       ),
       academyId: json['academyId'] as String?,
       classId: json['classId'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: json['createdAt'] is String 
+          ? DateTime.parse(json['createdAt'] as String) 
+          : (json['createdAt'] as dynamic).toDate(),
       isActive: json['isActive'] as bool? ?? true,
+      phone: json['phone'] as String?,
+      address: json['address'] as String?,
+      city: json['city'] as String?,
+      birthDate: json['birthDate'] != null
+          ? (json['birthDate'] is String
+              ? DateTime.parse(json['birthDate'] as String)
+              : (json['birthDate'] as dynamic).toDate())
+          : null,
+      motherName: json['motherName'] as String?,
+      fatherName: json['fatherName'] as String?,
+      financialResponsible: json['financialResponsible'] as String?,
+      legalResponsible: json['legalResponsible'] as String?,
+      email: json['email'] as String?,
+      isProfileComplete: json['isProfileComplete'] as bool? ?? false,
     );
   }
 
@@ -69,6 +115,16 @@ class AppUser {
     String? classId,
     DateTime? createdAt,
     bool? isActive,
+    String? phone,
+    String? address,
+    String? city,
+    DateTime? birthDate,
+    String? motherName,
+    String? fatherName,
+    String? financialResponsible,
+    String? legalResponsible,
+    String? email,
+    bool? isProfileComplete,
   }) {
     return AppUser(
       id: id ?? this.id,
@@ -79,6 +135,16 @@ class AppUser {
       classId: classId ?? this.classId,
       createdAt: createdAt ?? this.createdAt,
       isActive: isActive ?? this.isActive,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      birthDate: birthDate ?? this.birthDate,
+      motherName: motherName ?? this.motherName,
+      fatherName: fatherName ?? this.fatherName,
+      financialResponsible: financialResponsible ?? this.financialResponsible,
+      legalResponsible: legalResponsible ?? this.legalResponsible,
+      email: email ?? this.email,
+      isProfileComplete: isProfileComplete ?? this.isProfileComplete,
     );
   }
 }

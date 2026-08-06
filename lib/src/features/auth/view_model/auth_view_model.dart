@@ -1,41 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/auth_state.dart';
+import '../services/firebase_auth_service.dart';
 import '../../../core/models/user_model.dart';
 
+final firebaseAuthServiceProvider = Provider((ref) => FirebaseAuthService());
+
 class AuthViewModel extends Notifier<AuthState> {
-  final List<AppUser> _users = [
-    AppUser(
-      id: '1',
-      name: 'Admin Fuctura',
-      cpf: '00000000000',
-      role: UserRole.admin,
-      createdAt: DateTime.now(),
-    ),
-    AppUser(
-      id: '2',
-      name: 'Rafael Souza',
-      cpf: '11111111111',
-      role: UserRole.student,
-      createdAt: DateTime.now(),
-    ),
-    AppUser(
-      id: '3',
-      name: 'Prof. Carlos',
-      cpf: '22222222222',
-      role: UserRole.professor,
-      createdAt: DateTime.now(),
-    ),
-    AppUser(
-      id: '4',
-      name: 'Secretaria',
-      cpf: '33333333333',
-      role: UserRole.secretary,
-      createdAt: DateTime.now(),
-    )
-  ];
-
-  List<AppUser> get users => List.unmodifiable(_users);
-
   @override
   AuthState build() {
     return const AuthState.initial();
@@ -44,29 +14,55 @@ class AuthViewModel extends Notifier<AuthState> {
   Future<void> login(String cpf, String password) async {
     state = const AuthState.loading();
     try {
-      await Future.delayed(const Duration(seconds: 1));
-
       if (cpf.isEmpty || password.isEmpty) {
         state = const AuthState.error('CPF e senha são obrigatórios.');
         return;
       }
 
-      // Permite logar tanto pelo CPF formatado/limpo quanto pelo login
-      final cleanCpf = cpf.replaceAll(RegExp(r'[^0-9]'), '');
-      final user = _users.where((u) => u.cpf == cleanCpf).firstOrNull;
+      final authService = ref.read(firebaseAuthServiceProvider);
+      final user = await authService.loginWithCpf(cpf, password);
 
-      if (user != null && password == '123456') {
+      if (user != null) {
         state = AuthState.success(user);
       } else {
-        state = const AuthState.error('Credenciais inválidas.');
+        state = const AuthState.error('Credenciais inválidas ou usuário não encontrado.');
       }
     } catch (e) {
-      state = AuthState.error(e.toString());
+      state = AuthState.error(e.toString().replaceAll('Exception: ', ''));
     }
   }
 
-  void logout() {
-    state = const AuthState.initial();
+  Future<void> register(String name, String cpf, String password, {String? academyId}) async {
+    state = const AuthState.loading();
+    try {
+      if (name.isEmpty || cpf.isEmpty || password.isEmpty) {
+        state = const AuthState.error('Todos os campos são obrigatórios.');
+        return;
+      }
+
+      final authService = ref.read(firebaseAuthServiceProvider);
+      final user = await authService.registerWithCpf(name, cpf, password, academyId: academyId);
+
+      if (user != null) {
+        state = AuthState.success(user);
+      } else {
+        state = const AuthState.error('Falha desconhecida ao cadastrar.');
+      }
+    } catch (e) {
+      state = AuthState.error(e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await ref.read(firebaseAuthServiceProvider).logout();
+    } finally {
+      state = const AuthState.initial();
+    }
+  }
+
+  void updateUserLocally(AppUser updatedUser) {
+    state = AuthState.success(updatedUser);
   }
 }
 

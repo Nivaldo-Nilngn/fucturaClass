@@ -1,20 +1,113 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../auth/view_model/auth_view_model.dart';
+import '../../home/view_model/home_view_model.dart';
+import '../../home/widgets/mobile_header_widget.dart';
+import '../../home/widgets/desktop_header_widget.dart';
 
-class CodeEditorView extends StatelessWidget {
+class CodeEditorView extends ConsumerWidget {
   const CodeEditorView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authViewModelProvider).user;
+    final homeStateAsync = ref.watch(homeViewModelProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth > 800) {
-          return const _DesktopCodeEditor();
+        final isDesktop = constraints.maxWidth > 800;
+
+        Widget content;
+        if (user?.classId == null) {
+          content = const _WaitingEnrollmentView();
+        } else {
+          content = isDesktop ? const _DesktopCodeEditor() : const _MobileCodeEditor();
         }
-        return const _MobileCodeEditor();
+
+        if (isDesktop) {
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: Column(
+              children: [
+                homeStateAsync.when(
+                  data: (state) => DesktopHeaderWidget(state: state, title: 'Exercícios e Desafios'),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
+                Expanded(child: content),
+              ],
+            ),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF0F1117),
+          body: Column(
+            children: [
+              homeStateAsync.when(
+                data: (state) => MobileHeaderWidget(
+                  state: state,
+                  title: 'Exercícios e Desafios',
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+              Expanded(child: content),
+            ],
+          ),
+        );
       },
+    );
+  }
+}
+
+class _WaitingEnrollmentView extends StatelessWidget {
+  const _WaitingEnrollmentView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            decoration: BoxDecoration(
+              color: const Color(0xFF243447),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.code_off, color: Colors.white54, size: 64),
+                const SizedBox(height: AppSpacing.lg),
+                const Text(
+                  'Sem Exercícios no Momento',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Você ainda não possui exercícios para praticar.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../auth/view_model/auth_view_model.dart';
 import '../models/home_state.dart';
 
-class DesktopHeaderWidget extends StatelessWidget {
+class DesktopHeaderWidget extends ConsumerWidget {
   final HomeState state;
+  final String? title;
 
-  const DesktopHeaderWidget({super.key, required this.state});
+  const DesktopHeaderWidget({super.key, required this.state, this.title});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final bento = theme.bento;
 
@@ -34,34 +38,43 @@ class DesktopHeaderWidget extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: bento.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: bento.outlineVariant.withOpacity(0.5)),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: AppSpacing.md),
-                    Icon(
-                      Icons.search,
-                      color: bento.onSurfaceVariant.withOpacity(0.6),
-                      size: 20,
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        'Search courses, docs, community...',
-                        style: GoogleFonts.inter(
-                          color: bento.onSurfaceVariant.withOpacity(0.6),
-                          fontSize: 14,
-                        ),
+              child: title != null
+                  ? Text(
+                      title!,
+                      style: GoogleFonts.hankenGrotesk(
+                        color: bento.onSurface,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    )
+                  : Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: bento.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: bento.outlineVariant.withOpacity(0.5)),
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: AppSpacing.md),
+                          Icon(
+                            Icons.search,
+                            color: bento.onSurfaceVariant.withOpacity(0.6),
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              'Search courses, docs, community...',
+                              style: GoogleFonts.inter(
+                                color: bento.onSurfaceVariant.withOpacity(0.6),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
             ),
             const SizedBox(width: AppSpacing.lg),
             _NotificationIcon(color: bento.onSurfaceVariant),
@@ -106,9 +119,54 @@ class DesktopHeaderWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(width: AppSpacing.md),
-            _UserAvatar(
-              initials: state.initials,
-              bento: bento,
+            Theme(
+              data: Theme.of(context).copyWith(
+                popupMenuTheme: PopupMenuThemeData(
+                  color: const Color(0xFF243447),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  textStyle: GoogleFonts.hankenGrotesk(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              child: PopupMenuButton<String>(
+                offset: const Offset(0, 48),
+                onSelected: (value) {
+                  if (value == 'logout') {
+                    ref.read(authViewModelProvider.notifier).logout();
+                    context.go('/');
+                  } else if (value == 'config') {
+                    context.go('/profile-completion');
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'config',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.settings, color: Colors.white70, size: 20),
+                        const SizedBox(width: 8),
+                        const Text('Configurações'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.logout, color: Colors.redAccent, size: 20),
+                        const SizedBox(width: 8),
+                        const Text('Sair', style: TextStyle(color: Colors.redAccent)),
+                      ],
+                    ),
+                  ),
+                ],
+                child: _UserAvatar(
+                  initials: state.initials,
+                  bento: bento,
+                ),
+              ),
             ),
           ],
         ),
