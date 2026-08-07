@@ -18,7 +18,7 @@ class StudentDetailWidget extends StatelessWidget {
     final initials = _getInitials(student.name);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -79,46 +79,48 @@ class StudentDetailWidget extends StatelessWidget {
   }
 
   Widget _buildHeader(String initials) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    student.name,
-                    style: GoogleFonts.hankenGrotesk(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFE3E0F6),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF008261).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'ATIVO',
-                      style: GoogleFonts.jetBrainsMono(fontSize: 11, color: const Color(0xFF00E1AB)),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Turma: ${student.classId ?? 'Sábado'} · ${student.academyId ?? 'Lógica de Programação'}',
-                style: GoogleFonts.hankenGrotesk(fontSize: 13, color: const Color(0xFFC7C4D7)),
-              ),
-            ],
-          ),
-        ),
+        // Name + badge
         Row(
+          children: [
+            Flexible(
+              child: Text(
+                student.name,
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFE3E0F6),
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF008261).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                'ATIVO',
+                style: GoogleFonts.jetBrainsMono(fontSize: 11, color: const Color(0xFF00E1AB)),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Turma: ${student.classId ?? 'Sábado'} · ${student.academyId ?? 'Lógica de Programação'}',
+          style: GoogleFonts.hankenGrotesk(fontSize: 13, color: const Color(0xFFC7C4D7)),
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 12),
+        // Action buttons — wrap so they stack on small widths
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
           children: [
             OutlinedButton.icon(
               onPressed: () {},
@@ -130,11 +132,10 @@ class StudentDetailWidget extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
             ElevatedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.send, size: 16),
-              label: const Text('Enviar Material Didático'),
+              label: const Text('Enviar Material'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5D5FEF),
                 foregroundColor: Colors.white,
@@ -172,27 +173,32 @@ class StudentDetailWidget extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'CURSO ATUAL',
-                    style: GoogleFonts.jetBrainsMono(fontSize: 10, color: const Color(0xFFC7C4D7), letterSpacing: 0.5),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Lógica de Programação',
-                    style: GoogleFonts.hankenGrotesk(fontSize: 20, fontWeight: FontWeight.w700, color: const Color(0xFFE3E0F6)),
-                  ),
-                ],
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'CURSO ATUAL',
+                      style: GoogleFonts.jetBrainsMono(fontSize: 10, color: const Color(0xFFC7C4D7), letterSpacing: 0.5),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Lógica de Programação',
+                      style: GoogleFonts.hankenGrotesk(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFFE3E0F6)),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     '60%',
-                    style: GoogleFonts.hankenGrotesk(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF00E1AB)),
+                    style: GoogleFonts.hankenGrotesk(fontSize: 22, fontWeight: FontWeight.w700, color: const Color(0xFF00E1AB)),
                   ),
                   Text(
                     'CONCLUÍDO',
@@ -231,19 +237,26 @@ class StudentDetailWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.bar_chart, color: Color(0xFFFFDF9E), size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Notas por Módulo',
-                    style: GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.w600, color: const Color(0xFFE3E0F6)),
-                  ),
-                ],
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.bar_chart, color: Color(0xFFFFDF9E), size: 16),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        'Notas por Módulo',
+                        style: GoogleFonts.hankenGrotesk(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFFE3E0F6)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
-                'Média Geral: 8.5',
-                style: GoogleFonts.hankenGrotesk(fontSize: 13, color: const Color(0xFFC7C4D7)),
+                'Média: 8.5',
+                style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFC7C4D7)),
               ),
             ],
           ),
@@ -316,15 +329,21 @@ class StudentDetailWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.history, color: Color(0xFFC1C1FF), size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Histórico de Aulas',
-                    style: GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.w600, color: const Color(0xFFE3E0F6)),
-                  ),
-                ],
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.history, color: Color(0xFFC1C1FF), size: 16),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        'Histórico de Aulas',
+                        style: GoogleFonts.hankenGrotesk(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFFE3E0F6)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {},
@@ -380,11 +399,14 @@ class StudentDetailWidget extends StatelessWidget {
               ],
             ),
           ),
-          Text(
-            date,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
-              color: isPresent ? const Color(0xFFC7C4D7) : const Color(0xFFFFB4AB),
+          Flexible(
+            child: Text(
+              date,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 10,
+                color: isPresent ? const Color(0xFFC7C4D7) : const Color(0xFFFFB4AB),
+              ),
+              textAlign: TextAlign.right,
             ),
           ),
         ],
@@ -420,7 +442,7 @@ class StudentDetailWidget extends StatelessWidget {
 
   Widget _buildStatItem(IconData icon, String value, String label, Color color) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFF14142B),
         borderRadius: BorderRadius.circular(12),

@@ -6,8 +6,9 @@ import '../models/home_state.dart';
 
 class WelcomeCardWidget extends StatelessWidget {
   final HomeState state;
+  final bool showStats;
 
-  const WelcomeCardWidget({super.key, required this.state});
+  const WelcomeCardWidget({super.key, required this.state, this.showStats = true});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class WelcomeCardWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF14142B), // Cor de fundo escura
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: bento.outlineVariant.withOpacity(0.5)),
         boxShadow: const [
@@ -50,7 +51,7 @@ class WelcomeCardWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Welcome back, ${state.firstName}! 👋',
+                            'Bem-vindo(a) de volta, ${state.firstName}! 👋',
                             style: GoogleFonts.hankenGrotesk(
                               color: bento.onSurface,
                               fontSize: 24,
@@ -59,7 +60,9 @@ class WelcomeCardWidget extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "You're making great progress in your Flutter path. Keep up the momentum to reach Level 13.",
+                            showStats 
+                                ? "Você está fazendo um ótimo progresso. Mantenha o ritmo para alcançar o próximo nível!"
+                                : "Você está aguardando alocação em uma turma. Em breve, seus pontos e estatísticas aparecerão aqui!",
                             style: GoogleFonts.inter(
                               color: bento.onSurfaceVariant,
                               fontSize: 14,
@@ -71,105 +74,107 @@ class WelcomeCardWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.lg),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isSmallScreen = constraints.maxWidth < 500;
-                    
-                    if (isSmallScreen) {
-                      return Wrap(
-                        spacing: AppSpacing.md,
-                        runSpacing: AppSpacing.md,
+                if (showStats) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isSmallScreen = constraints.maxWidth < 500;
+                      
+                      if (isSmallScreen) {
+                        return Wrap(
+                          spacing: AppSpacing.md,
+                          runSpacing: AppSpacing.md,
+                          children: [
+                            SizedBox(
+                              width: (constraints.maxWidth - AppSpacing.md) / 2,
+                              child: _StatCard(
+                                icon: Icons.local_fire_department_outlined,
+                                iconColor: bento.tertiary,
+                                value: '${state.streak}',
+                                label: 'SEQUÊNCIA ATUAL',
+                                sublabel: 'DIAS',
+                              ),
+                            ),
+                            SizedBox(
+                              width: (constraints.maxWidth - AppSpacing.md) / 2,
+                              child: _StatCard(
+                                icon: Icons.star_outline,
+                                iconColor: const Color(0xFFFF6B6B),
+                                value: '${state.points}',
+                                label: 'XP TOTAL',
+                                sublabel: 'XP',
+                              ),
+                            ),
+                            SizedBox(
+                              width: (constraints.maxWidth - AppSpacing.md) / 2,
+                              child: _StatCard(
+                                icon: Icons.account_balance_wallet_outlined,
+                                iconColor: const Color(0xFF4CAF50),
+                                value: '0',
+                                label: 'MOEDAS',
+                                sublabel: 'FC',
+                              ),
+                            ),
+                            SizedBox(
+                              width: (constraints.maxWidth - AppSpacing.md) / 2,
+                              child: _StatCard(
+                                icon: Icons.menu_book_outlined,
+                                iconColor: bento.primary,
+                                value: '0',
+                                label: 'CURSOS',
+                                sublabel: '',
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      
+                      return Row(
                         children: [
-                          SizedBox(
-                            width: (constraints.maxWidth - AppSpacing.md) / 2,
+                          Expanded(
                             child: _StatCard(
                               icon: Icons.local_fire_department_outlined,
                               iconColor: bento.tertiary,
                               value: '${state.streak}',
-                              label: 'CURRENT STREAK',
-                              sublabel: 'DAYS',
+                              label: 'SEQUÊNCIA\nATUAL',
+                              sublabel: 'DIAS',
                             ),
                           ),
-                          SizedBox(
-                            width: (constraints.maxWidth - AppSpacing.md) / 2,
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
                             child: _StatCard(
                               icon: Icons.star_outline,
                               iconColor: const Color(0xFFFF6B6B),
-                              value: '12,450',
-                              label: 'TOTAL XP',
+                              value: '${state.points}',
+                              label: 'EXPERIÊNCIA\nTOTAL',
                               sublabel: 'XP',
                             ),
                           ),
-                          SizedBox(
-                            width: (constraints.maxWidth - AppSpacing.md) / 2,
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
                             child: _StatCard(
                               icon: Icons.account_balance_wallet_outlined,
                               iconColor: const Color(0xFF4CAF50),
-                              value: '840',
-                              label: 'FC COINS',
+                              value: '0',
+                              label: 'MOEDAS\nFUCTURA',
                               sublabel: 'FC',
                             ),
                           ),
-                          SizedBox(
-                            width: (constraints.maxWidth - AppSpacing.md) / 2,
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
                             child: _StatCard(
                               icon: Icons.menu_book_outlined,
                               iconColor: bento.primary,
-                              value: '3',
-                              label: 'COURSES',
+                              value: '0',
+                              label: 'CURSOS\nATIVOS',
                               sublabel: '',
                             ),
                           ),
                         ],
                       );
-                    }
-                    
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: _StatCard(
-                            icon: Icons.local_fire_department_outlined,
-                            iconColor: bento.tertiary,
-                            value: '${state.streak}',
-                            label: 'CURRENT\nSTREAK',
-                            sublabel: 'DAYS',
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: _StatCard(
-                            icon: Icons.star_outline,
-                            iconColor: const Color(0xFFFF6B6B),
-                            value: '12,450',
-                            label: 'TOTAL\nEXPERIENCE',
-                            sublabel: 'XP',
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: _StatCard(
-                            icon: Icons.account_balance_wallet_outlined,
-                            iconColor: const Color(0xFF4CAF50),
-                            value: '840',
-                            label: 'FUCTURA\nCOINS',
-                            sublabel: 'FC',
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: _StatCard(
-                            icon: Icons.menu_book_outlined,
-                            iconColor: bento.primary,
-                            value: '3',
-                            label: 'ACTIVE\nCOURSES',
-                            sublabel: '',
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                    },
+                  ),
+                ],
               ],
             ),
           ),

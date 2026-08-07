@@ -309,9 +309,9 @@ class _KidsMainShellViewState extends ConsumerState<KidsMainShellView> {
 
   Widget _buildLogoutItem(BuildContext context) {
     return InkWell(
-      onTap: () {
-        ref.read(authViewModelProvider.notifier).logout();
-        context.go('/');
+      onTap: () async {
+        await ref.read(authViewModelProvider.notifier).logout();
+        if (context.mounted) context.go('/');
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(

@@ -6,6 +6,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../auth/view_model/auth_view_model.dart';
 import '../models/home_state.dart';
+import '../../profile/views/profile_completion_view.dart';
 
 class DesktopHeaderWidget extends ConsumerWidget {
   final HomeState state;
@@ -21,17 +22,10 @@ class DesktopHeaderWidget extends ConsumerWidget {
     return Container(
       height: 64,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF14142B), // Fundo escuro
         border: Border(
-          bottom: BorderSide(color: bento.outlineVariant.withOpacity(0.5)),
+          bottom: BorderSide(color: bento.outlineVariant.withOpacity(0.3)),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -50,7 +44,7 @@ class DesktopHeaderWidget extends ConsumerWidget {
                   : Container(
                       height: 40,
                       decoration: BoxDecoration(
-                        color: bento.surfaceContainerLow,
+                        color: const Color(0xFF1E1E2E), // Fundo da busca escuro
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: bento.outlineVariant.withOpacity(0.5)),
                       ),
@@ -132,12 +126,15 @@ class DesktopHeaderWidget extends ConsumerWidget {
               ),
               child: PopupMenuButton<String>(
                 offset: const Offset(0, 48),
-                onSelected: (value) {
+                onSelected: (value) async {
                   if (value == 'logout') {
-                    ref.read(authViewModelProvider.notifier).logout();
-                    context.go('/');
+                    await ref.read(authViewModelProvider.notifier).logout();
+                    if (context.mounted) context.go('/');
                   } else if (value == 'config') {
-                    context.go('/profile-completion');
+                    showDialog(
+                      context: context,
+                      builder: (context) => const ProfileCompletionView(),
+                    );
                   }
                 },
                 itemBuilder: (context) => [

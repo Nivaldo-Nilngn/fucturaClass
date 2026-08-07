@@ -95,7 +95,7 @@ class _ProfileCompletionViewState extends ConsumerState<ProfileCompletionView> {
             backgroundColor: Color(0xFF00E1AB),
           ),
         );
-        context.go('/home');
+        context.pop();
       }
     } catch (e) {
       if (mounted) {
@@ -115,26 +115,19 @@ class _ProfileCompletionViewState extends ConsumerState<ProfileCompletionView> {
     final primaryColor = const Color(0xFF0055FF);
     final isDesktop = MediaQuery.of(context).size.width > 600;
 
-    return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFF0F1016) : const Color(0xFF252538),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go('/home'),
-        ),
-      ),
-      body: Center(
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.all(isDesktop ? 32 : 16),
+      child: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(isDesktop ? AppSpacing.xl : AppSpacing.md),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
+            constraints: BoxConstraints(maxWidth: isDesktop ? 800 : 600),
             child: Container(
-              padding: EdgeInsets.all(isDesktop ? 32 : 16),
+              padding: EdgeInsets.all(isDesktop ? 40 : 16),
               decoration: BoxDecoration(
                 color: const Color(0xFF252538),
                 borderRadius: BorderRadius.circular(isDesktop ? 24 : 0),
+                border: isDesktop ? Border.all(color: primaryColor.withOpacity(0.3), width: 1.5) : null,
                 boxShadow: isDesktop
                     ? [
                         BoxShadow(
@@ -150,6 +143,13 @@ class _ProfileCompletionViewState extends ConsumerState<ProfileCompletionView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => context.pop(),
+                      ),
+                    ),
                     Icon(Icons.stars, color: const Color(0xFFFFD700), size: 64),
                     const SizedBox(height: 16),
                     Text(
@@ -175,29 +175,40 @@ class _ProfileCompletionViewState extends ConsumerState<ProfileCompletionView> {
                     // Sessão 1: Dados Pessoais
                     Text('Dados Pessoais', style: GoogleFonts.poppins(color: primaryColor, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _emailController,
-                      label: 'E-mail Pessoal',
-                      icon: Icons.email_outlined,
-                      primaryColor: primaryColor,
-                      keyboardType: TextInputType.emailAddress,
+                    _buildResponsiveRow(
+                      _buildTextField(
+                        controller: _emailController,
+                        label: 'E-mail Pessoal',
+                        icon: Icons.email_outlined,
+                        primaryColor: primaryColor,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      _buildTextField(
+                        controller: _phoneController,
+                        label: 'Telefone',
+                        icon: Icons.phone_outlined,
+                        primaryColor: primaryColor,
+                        keyboardType: TextInputType.phone,
+                      ),
+                      isDesktop,
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _phoneController,
-                      label: 'Telefone',
-                      icon: Icons.phone_outlined,
-                      primaryColor: primaryColor,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _birthDateController,
-                      label: 'Data de Nascimento',
-                      icon: Icons.calendar_today_outlined,
-                      primaryColor: primaryColor,
-                      readOnly: true,
-                      onTap: () => _selectDate(context),
+                    _buildResponsiveRow(
+                      _buildTextField(
+                        controller: _birthDateController,
+                        label: 'Data de Nascimento',
+                        icon: Icons.calendar_today_outlined,
+                        primaryColor: primaryColor,
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                      ),
+                      _buildTextField(
+                        controller: _cityController,
+                        label: 'Cidade',
+                        icon: Icons.location_city_outlined,
+                        primaryColor: primaryColor,
+                      ),
+                      isDesktop,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -206,78 +217,76 @@ class _ProfileCompletionViewState extends ConsumerState<ProfileCompletionView> {
                       icon: Icons.home_outlined,
                       primaryColor: primaryColor,
                     ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _cityController,
-                      label: 'Cidade',
-                      icon: Icons.location_city_outlined,
-                      primaryColor: primaryColor,
-                    ),
                     
                     const SizedBox(height: 32),
                     // Sessão 2: Filiação e Responsáveis
                     Text('Filiação e Responsáveis', style: GoogleFonts.poppins(color: primaryColor, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _motherNameController,
-                      label: 'Nome da Mãe',
-                      icon: Icons.person_3_outlined,
-                      primaryColor: primaryColor,
+                    _buildResponsiveRow(
+                      _buildTextField(
+                        controller: _motherNameController,
+                        label: 'Nome da Mãe',
+                        icon: Icons.person_3_outlined,
+                        primaryColor: primaryColor,
+                      ),
+                      _buildTextField(
+                        controller: _fatherNameController,
+                        label: 'Nome do Pai',
+                        icon: Icons.person_outlined,
+                        primaryColor: primaryColor,
+                      ),
+                      isDesktop,
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _fatherNameController,
-                      label: 'Nome do Pai',
-                      icon: Icons.person_outlined,
-                      primaryColor: primaryColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _legalRespController,
-                      label: 'Responsável Legal',
-                      icon: Icons.gavel_outlined,
-                      primaryColor: primaryColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _financialRespController,
-                      label: 'Responsável Financeiro',
-                      icon: Icons.attach_money_outlined,
-                      primaryColor: primaryColor,
+                    _buildResponsiveRow(
+                      _buildTextField(
+                        controller: _legalRespController,
+                        label: 'Responsável Legal',
+                        icon: Icons.gavel_outlined,
+                        primaryColor: primaryColor,
+                      ),
+                      _buildTextField(
+                        controller: _financialRespController,
+                        label: 'Responsável Financeiro',
+                        icon: Icons.attach_money_outlined,
+                        primaryColor: primaryColor,
+                      ),
+                      isDesktop,
                     ),
 
                     const SizedBox(height: 40),
-                    SizedBox(
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    if (isDesktop)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () => context.pop(),
+                            child: Text(
+                              'Preencher mais tarde',
+                              style: GoogleFonts.poppins(color: Colors.white54),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 250,
+                            height: 50,
+                            child: _buildSubmitButton(isLoading, primaryColor),
+                          ),
+                        ],
+                      )
+                    else ...[
+                      SizedBox(
+                        height: 50,
+                        child: _buildSubmitButton(isLoading, primaryColor),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () => context.pop(),
+                        child: Text(
+                          'Preencher mais tarde',
+                          style: GoogleFonts.poppins(color: Colors.white54),
                         ),
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 24, height: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                              )
-                            : Text(
-                                'Salvar Perfil (+100 XP)',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => context.go('/home'),
-                      child: Text(
-                        'Preencher mais tarde',
-                        style: GoogleFonts.poppins(color: Colors.white54),
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ),
@@ -286,6 +295,52 @@ class _ProfileCompletionViewState extends ConsumerState<ProfileCompletionView> {
         ),
       ),
     );
+  }
+
+  Widget _buildSubmitButton(bool isLoading, Color primaryColor) {
+    return ElevatedButton(
+      onPressed: isLoading ? null : _submit,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: isLoading
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+            )
+          : Text(
+              'Salvar Perfil (+100 XP)',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+    );
+  }
+
+  Widget _buildResponsiveRow(Widget child1, Widget child2, bool isDesktop) {
+    if (isDesktop) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: child1),
+          const SizedBox(width: 16),
+          Expanded(child: child2),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          child1,
+          const SizedBox(height: 16),
+          child2,
+        ],
+      );
+    }
   }
 
   Widget _buildTextField({

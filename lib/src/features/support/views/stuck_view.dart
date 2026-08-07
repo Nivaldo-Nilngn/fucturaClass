@@ -28,7 +28,7 @@ class StuckView extends ConsumerWidget {
           homeStateAsync.when(
             data: (state) => MediaQuery.of(context).size.width > 800
                 ? DesktopHeaderWidget(state: state, title: 'Suporte e Ajuda')
-                : MobileHeaderWidget(state: state, title: 'Suporte e Ajuda'),
+                : const SizedBox.shrink(), // Header removed for mobile layout
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
           ),

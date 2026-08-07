@@ -60,16 +60,18 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
   }
 
   Widget _buildContent(AdminDashboardState state, AdminViewModel notifier, AppUser? currentUser) {
+    final isMobile = MediaQuery.of(context).size.width < AppSpacing.desktopBreakpoint;
     return Column(
       children: [
-        _buildHeader(context, currentUser),
+        if (!isMobile) _buildHeader(context, currentUser),
+        if (isMobile) const SizedBox(height: 56), // Espaço para o botão de menu (MenuBtn)
         Expanded(child: _buildPageContent(state, notifier)),
       ],
     );
   }
 
   Widget _buildHeader(BuildContext context, AppUser? currentUser) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < AppSpacing.desktopBreakpoint;
 
     return Container(
       height: 64,
@@ -81,13 +83,6 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Row(
           children: [
-            // Logo Fuctura
-            SvgPicture.asset(
-              'assets/logoFucturaColor.svg',
-              height: 24,
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            
             if (!isMobile)
               Expanded(
                 child: Container(

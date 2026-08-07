@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../auth/view_model/auth_view_model.dart';
 import '../models/home_state.dart';
+import '../../profile/views/profile_completion_view.dart';
 
 class MobileHeaderWidget extends ConsumerWidget {
   final HomeState state;
@@ -65,12 +66,15 @@ class MobileHeaderWidget extends ConsumerWidget {
                     ),
                     child: PopupMenuButton<String>(
                       offset: const Offset(0, 48),
-                      onSelected: (value) {
+                      onSelected: (value) async {
                         if (value == 'logout') {
-                          ref.read(authViewModelProvider.notifier).logout();
-                          context.go('/');
+                          await ref.read(authViewModelProvider.notifier).logout();
+                          if (context.mounted) context.go('/');
                         } else if (value == 'config') {
-                          context.go('/profile-completion');
+                          showDialog(
+                            context: context,
+                            builder: (context) => const ProfileCompletionView(),
+                          );
                         }
                       },
                       itemBuilder: (context) => [

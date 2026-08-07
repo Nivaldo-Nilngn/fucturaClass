@@ -8,15 +8,12 @@ import '../view_model/home_view_model.dart';
 import '../models/home_state.dart';
 import '../../../core/models/user_model.dart';
 
-import '../widgets/bento_module_progress_widget.dart';
-import '../widgets/bento_next_class_widget.dart';
-import '../widgets/bento_ranking_widget.dart';
-import '../widgets/bento_presence_widget.dart';
-import '../widgets/bento_checklist_widget.dart';
-import '../widgets/bento_auction_widget.dart';
+import '../widgets/student_notices_widget.dart';
+import '../widgets/student_shortcuts_widget.dart';
 import '../widgets/mobile_header_widget.dart';
 import '../widgets/desktop_header_widget.dart';
 import '../widgets/welcome_card_widget.dart';
+import '../../profile/views/profile_completion_view.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
@@ -29,7 +26,7 @@ class HomeView extends ConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth >= AppSpacing.mobileBreakpoint;
+        final isDesktop = constraints.maxWidth >= AppSpacing.desktopBreakpoint;
         
         if (isDesktop) {
           return Scaffold(
@@ -84,7 +81,8 @@ class HomeView extends ConsumerWidget {
               data: (state) {
                 return Column(
                   children: [
-                    MobileHeaderWidget(state: state),
+                    // MobileHeaderWidget removed by request to move user data to SideMenu
+
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: () => ref.read(homeViewModelProvider.notifier).refresh(),
@@ -123,24 +121,23 @@ class HomeView extends ConsumerWidget {
 
   Widget _buildMobileLayout(HomeState state, AppUser? user, BuildContext context) {
     final isProfileComplete = user?.isProfileComplete ?? true;
+    final hasClass = true; // MOCK: user?.classId != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const SizedBox(height: 80), // Espaço maior para o botão de menu (MenuBtn) e ícones flutuantes
         if (!isProfileComplete) _buildProfileBanner(context),
         if (!isProfileComplete) const SizedBox(height: AppSpacing.lg),
-        if (user?.classId == null) ...[
+        WelcomeCardWidget(state: state, showStats: hasClass),
+        const SizedBox(height: AppSpacing.lg),
+        if (!hasClass) ...[
           _buildNoClassBanner(),
-        ] else ...[
-          BentoNextClassWidget(state: state),
           const SizedBox(height: AppSpacing.lg),
-          BentoRankingWidget(state: state),
-          const SizedBox(height: AppSpacing.lg),
-          BentoPresenceWidget(state: state),
-          const SizedBox(height: AppSpacing.lg),
-          BentoChecklistWidget(state: state),
-          const SizedBox(height: AppSpacing.lg),
-          BentoAuctionWidget(state: state),
         ],
+        StudentNoticesWidget(state: state),
+        const SizedBox(height: AppSpacing.lg),
+        const StudentShortcutsWidget(),
         const SizedBox(height: AppSpacing.xxl),
       ],
     );
@@ -148,53 +145,45 @@ class HomeView extends ConsumerWidget {
 
   Widget _buildDesktopLayout(HomeState state, AppUser? user, BuildContext context) {
     final isProfileComplete = user?.isProfileComplete ?? true;
+    final hasClass = true; // MOCK: user?.classId != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (!isProfileComplete) _buildProfileBanner(context),
         if (!isProfileComplete) const SizedBox(height: AppSpacing.lg),
-        if (user?.classId == null) ...[
+        WelcomeCardWidget(state: state, showStats: hasClass),
+        const SizedBox(height: AppSpacing.lg),
+        if (!hasClass) ...[
           _buildNoClassBanner(),
           const SizedBox(height: AppSpacing.lg),
-          WelcomeCardWidget(state: state),
-        ] else ...[
-          WelcomeCardWidget(state: state),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Column (7/12)
-              Expanded(
-                flex: 7,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    BentoModuleProgressWidget(state: state),
-                    const SizedBox(height: AppSpacing.lg),
-                    BentoNextClassWidget(state: state),
-                    const SizedBox(height: AppSpacing.lg),
-                    BentoPresenceWidget(state: state),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.lg),
-              // Right Column (5/12)
-              Expanded(
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    BentoRankingWidget(state: state),
-                    const SizedBox(height: AppSpacing.lg),
-                    BentoChecklistWidget(state: state),
-                    const SizedBox(height: AppSpacing.lg),
-                    BentoAuctionWidget(state: state),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ],
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left Column (7/12)
+            Expanded(
+              flex: 7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  StudentNoticesWidget(state: state),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            // Right Column (5/12)
+            const Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  StudentShortcutsWidget(),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.xxl),
       ],
     );
@@ -239,21 +228,34 @@ class HomeView extends ConsumerWidget {
     
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF00E1AB), Color(0xFF0055FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF00E1AB).withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          )
-        ],
-      ),
+      decoration: isMobile
+          ? BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF00E1AB), Color(0xFF0055FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF00E1AB).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                )
+              ],
+            )
+          : BoxDecoration(
+              color: const Color(0xFF14142B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF00E1AB).withOpacity(0.5), width: 1.5),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0C000000),
+                  blurRadius: 20,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
       child: isMobile
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -278,7 +280,7 @@ class HomeView extends ConsumerWidget {
                           Text(
                             'Ganhe +100 Pontos de Experiência ao preencher seus dados.',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white,
                               fontSize: 14,
                             ),
                           ),
@@ -289,7 +291,10 @@ class HomeView extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 ElevatedButton(
-                  onPressed: () => context.go('/profile-completion'),
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => const ProfileCompletionView(),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF0055FF),
@@ -302,7 +307,14 @@ class HomeView extends ConsumerWidget {
             )
           : Row(
               children: [
-                const Icon(Icons.stars, color: Color(0xFFFFD700), size: 40),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00E1AB).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.rocket_launch_outlined, color: Color(0xFF00E1AB), size: 28),
+                ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
@@ -320,8 +332,8 @@ class HomeView extends ConsumerWidget {
                       Text(
                         'Ganhe +100 Pontos de Experiência ao preencher seus dados.',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 13,
+                          color: Colors.white70,
+                          fontSize: 14,
                         ),
                       ),
                     ],
@@ -329,13 +341,17 @@ class HomeView extends ConsumerWidget {
                 ),
                 const SizedBox(width: AppSpacing.md),
                 ElevatedButton(
-                  onPressed: () => context.go('/profile-completion'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF0055FF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => const ProfileCompletionView(),
                   ),
-                  child: const Text('Completar Agora', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00E1AB),
+                    foregroundColor: const Color(0xFF14142B),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  ),
+                  child: const Text('Completar Agora', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 ),
               ],
             ),

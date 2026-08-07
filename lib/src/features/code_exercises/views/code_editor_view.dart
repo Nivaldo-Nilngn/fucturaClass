@@ -47,14 +47,7 @@ class CodeEditorView extends ConsumerWidget {
           backgroundColor: const Color(0xFF0F1117),
           body: Column(
             children: [
-              homeStateAsync.when(
-                data: (state) => MobileHeaderWidget(
-                  state: state,
-                  title: 'Exercícios e Desafios',
-                ),
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
+              // MobileHeaderWidget removed to transfer user data to sidebar
               Expanded(child: content),
             ],
           ),
