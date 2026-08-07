@@ -96,7 +96,13 @@ class AdminViewModel extends Notifier<AdminDashboardState> {
 
   // === Student CRUD ===
 
-  void addStudent({required String name, required String email, String? turma}) {
+  void addStudent({
+    required String name,
+    required String email,
+    required String password,
+    String? turma,
+    String? photoUrl,
+  }) {
     // TODO: Implement user registration via Firebase Secondary App
     _refresh();
   }

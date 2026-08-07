@@ -800,7 +800,7 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
       }
     }
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         children: [
@@ -829,16 +829,14 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Expanded(
-            child: StudentListWidget(
-              students: state.students,
-              onTap: (student) => notifier.selectStudent(student.id),
-              onDelete: (student) => _confirmDelete(
-                context: context,
-                title: 'Remover aluno?',
-                message: 'Deseja remover ${student.name} do sistema?',
-                onConfirm: () => notifier.removeStudent(student.id),
-              ),
+          StudentListWidget(
+            students: state.students,
+            onTap: (student) => notifier.selectStudent(student.id),
+            onDelete: (student) => _confirmDelete(
+              context: context,
+              title: 'Remover aluno?',
+              message: 'Deseja remover ${student.name} do sistema?',
+              onConfirm: () => notifier.removeStudent(student.id),
             ),
           ),
         ],
@@ -943,50 +941,133 @@ class _ManagerViewState extends ConsumerState<ManagerView> {
   void _showAddStudentDialog(AdminViewModel notifier) {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final photoUrlController = TextEditingController();
     final turmaController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cadastrar Aluno'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nome'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'E-mail'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: turmaController,
-              decoration: const InputDecoration(labelText: 'Turma (opcional)'),
-            ),
-          ],
+      builder: (context) => Dialog(
+        backgroundColor: const Color(0xFF14142B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Cadastrar Aluno',
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFE3E0F6),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              _buildStyledTextField(
+                controller: nameController,
+                label: 'Nome',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildStyledTextField(
+                controller: emailController,
+                label: 'E-mail',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildStyledTextField(
+                controller: passwordController,
+                label: 'Senha (mín. 6 caracteres)',
+                obscureText: true,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildStyledTextField(
+                controller: photoUrlController,
+                label: 'URL da Foto (opcional)',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildStyledTextField(
+                controller: turmaController,
+                label: 'Turma (opcional)',
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFFC1C1FF),
+                    ),
+                    child: const Text('Cancelar'),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (nameController.text.isNotEmpty && emailController.text.isNotEmpty && passwordController.text.length >= 6) {
+                        notifier.addStudent(
+                          name: nameController.text,
+                          email: emailController.text,
+                          password: passwordController.text,
+                          turma: turmaController.text.isNotEmpty ? turmaController.text : null,
+                          photoUrl: photoUrlController.text.isNotEmpty ? photoUrlController.text : null,
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E1E2E),
+                      foregroundColor: const Color(0xFFC1C1FF),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('Cadastrar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty && emailController.text.isNotEmpty) {
-                notifier.addStudent(
-                  name: nameController.text,
-                  email: emailController.text,
-                  turma: turmaController.text.isNotEmpty ? turmaController.text : null,
-                );
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Cadastrar'),
-          ),
-        ],
+      ),
+    );
+  }
+
+  Widget _buildStyledTextField({
+    required TextEditingController controller,
+    required String label,
+    bool obscureText = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      style: GoogleFonts.jetBrainsMono(
+        color: const Color(0xFFE3E0F6),
+        fontSize: 13,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.jetBrainsMono(
+          color: const Color(0xFFE3E0F6),
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+        filled: true,
+        fillColor: const Color(0xFF1E1E2E),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF464555)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF464555)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF5D5FEF)),
+        ),
       ),
     );
   }

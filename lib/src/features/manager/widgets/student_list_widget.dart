@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/models/user_model.dart';
 
-class StudentListWidget extends StatelessWidget {
+class StudentListWidget extends StatefulWidget {
   final List<AppUser> students;
   final Function(AppUser) onTap;
   final Function(AppUser)? onDelete;
@@ -16,29 +16,130 @@ class StudentListWidget extends StatelessWidget {
   });
 
   @override
+  State<StudentListWidget> createState() => _StudentListWidgetState();
+}
+
+class _StudentListWidgetState extends State<StudentListWidget> {
+  String _searchQuery = '';
+  bool _isGridView = true;
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(flex: 2, child: _buildMainContent()),
-        const SizedBox(width: AppSpacing.lg),
-        Expanded(flex: 1, child: _buildSidePanel()),
-      ],
-    );
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
+    return _buildMainContent(isMobile);
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(bool isMobile) {
+    final filteredStudents = widget.students.where((student) {
+      final query = _searchQuery.toLowerCase();
+      return student.name.toLowerCase().contains(query) ||
+          (student.classId?.toLowerCase().contains(query) ?? false);
+    }).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeader(),
+        _buildHeader(isMobile),
         const SizedBox(height: AppSpacing.lg),
-        _buildStudentGrid(),
+        _buildStudentContent(isMobile, filteredStudents),
       ],
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isMobile) {
+    final titleWidget = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Diretório de Alunos',
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFFE3E0F6),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Gerencie e monitore o progresso dos alunos ativos.',
+          style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFC7C4D7)),
+        ),
+      ],
+    );
+
+    final searchWidget = Container(
+      width: isMobile ? double.infinity : 220,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E2E),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF464555)),
+      ),
+      child: TextField(
+        onChanged: (value) => setState(() => _searchQuery = value),
+        style: const TextStyle(color: Color(0xFFE3E0F6), fontSize: 13),
+        decoration: const InputDecoration(
+          hintText: 'Buscar aluno...',
+          hintStyle: TextStyle(color: Color(0xFF908FA0)),
+          prefixIcon: Icon(Icons.search, color: Color(0xFF908FA0), size: 18),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        ),
+      ),
+    );
+
+    final viewAndFilterWidget = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E2E),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: const Color(0xFF464555)),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => setState(() => _isGridView = true),
+                icon: Icon(Icons.grid_view, size: 18, color: _isGridView ? const Color(0xFFE3E0F6) : const Color(0xFF908FA0)),
+              ),
+              IconButton(
+                onPressed: () => setState(() => _isGridView = false),
+                icon: Icon(Icons.view_list, size: 18, color: !_isGridView ? const Color(0xFFE3E0F6) : const Color(0xFF908FA0)),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        OutlinedButton.icon(
+          onPressed: () {},
+          icon: const Icon(Icons.filter_list, size: 16),
+          label: const Text('Filtrar'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFFE3E0F6),
+            side: const BorderSide(color: Color(0xFF464555)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          ),
+        ),
+      ],
+    );
+
+    final actionsWidget = isMobile
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              searchWidget,
+              const SizedBox(height: AppSpacing.md),
+              viewAndFilterWidget,
+            ],
+          )
+        : Row(
+            children: [
+              searchWidget,
+              const SizedBox(width: AppSpacing.md),
+              viewAndFilterWidget,
+            ],
+          );
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -46,68 +147,27 @@ class StudentListWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF464555)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Diretório de Alunos',
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFE3E0F6),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Gerencie e monitore o progresso dos alunos ativos.',
-                style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFC7C4D7)),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E2E),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF464555)),
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.grid_view, size: 18, color: Color(0xFFE3E0F6)),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.view_list, size: 18, color: Color(0xFF908FA0)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.filter_list, size: 16),
-                label: const Text('Filtrar'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFE3E0F6),
-                  side: const BorderSide(color: Color(0xFF464555)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                titleWidget,
+                const SizedBox(height: AppSpacing.md),
+                actionsWidget,
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                titleWidget,
+                actionsWidget,
+              ],
+            ),
     );
   }
 
-  Widget _buildStudentGrid() {
-    if (students.isEmpty) {
+  Widget _buildStudentContent(bool isMobile, List<AppUser> filteredStudents) {
+    if (filteredStudents.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(AppSpacing.xl),
         decoration: BoxDecoration(
@@ -132,36 +192,62 @@ class StudentListWidget extends StatelessWidget {
       const Color(0xFFFF6B35),
     ];
 
-    return Wrap(
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.md,
-      children: students.asMap().entries.map((entry) {
-        final i = entry.key;
-        final student = entry.value;
-        final initials = student.name
-            .split(' ')
-            .take(2)
-            .map((w) => w[0].toUpperCase())
-            .join();
-        final color = colors[i % colors.length];
+    if (_isGridView) {
+      return Wrap(
+        spacing: AppSpacing.md,
+        runSpacing: AppSpacing.md,
+        children: filteredStudents.asMap().entries.map((entry) {
+          final i = entry.key;
+          final student = entry.value;
+          final initials = student.name
+              .split(' ')
+              .take(2)
+              .map((w) => w[0].toUpperCase())
+              .join();
+          final color = colors[i % colors.length];
 
-        return _buildStudentCard(
-          student: student,
-          name: student.name,
-          turma: student.classId ?? 'Sem turma',
-          course: 'Flutter',
-          level: 12,
-          progress: 0.75,
-          streak: 7,
-          xp: '2.5k',
-          initials: initials,
-          color: color,
-        );
-      }).toList(),
-    );
+          return _buildStudentCard(
+            isMobile: isMobile,
+            student: student,
+            name: student.name,
+            turma: student.classId ?? 'Sem turma',
+            course: 'Flutter',
+            level: 12,
+            progress: 0.75,
+            streak: 7,
+            xp: '2.5k',
+            initials: initials,
+            color: color,
+          );
+        }).toList(),
+      );
+    } else {
+      return Column(
+        children: filteredStudents.asMap().entries.map((entry) {
+          final i = entry.key;
+          final student = entry.value;
+          final initials = student.name
+              .split(' ')
+              .take(2)
+              .map((w) => w[0].toUpperCase())
+              .join();
+          final color = colors[i % colors.length];
+
+          return _buildStudentListItem(
+            student: student,
+            name: student.name,
+            turma: student.classId ?? 'Sem turma',
+            course: 'Flutter',
+            initials: initials,
+            color: color,
+          );
+        }).toList(),
+      );
+    }
   }
 
   Widget _buildStudentCard({
+    required bool isMobile,
     required AppUser student,
     required String name,
     required String turma,
@@ -174,11 +260,11 @@ class StudentListWidget extends StatelessWidget {
     required Color color,
   }) {
     return InkWell(
-      onTap: () => onTap(student),
+      onTap: () => widget.onTap(student),
       borderRadius: BorderRadius.circular(12),
       hoverColor: const Color(0xFF1E1E2E),
       child: Container(
-      width: 280,
+      width: isMobile ? double.infinity : 280,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: const Color(0xFF14142B),
@@ -301,7 +387,7 @@ class StudentListWidget extends StatelessWidget {
                   ],
                 ),
                 TextButton.icon(
-                  onPressed: () => onTap(student),
+                  onPressed: () => widget.onTap(student),
                   icon: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFC1C1FF)),
                   label: Text(
                     'Detalhes',
@@ -339,191 +425,68 @@ class StudentListWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSidePanel() {
-    return Column(
-      children: [
-        _buildChatPanel(),
-        const SizedBox(height: AppSpacing.lg),
-        _buildEngagementWidget(),
-      ],
-    );
-  }
-
-  Widget _buildChatPanel() {
-    return Container(
-      height: 400,
-      decoration: BoxDecoration(
-        color: const Color(0xFF14142B),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF464555)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Color(0xFF464555), width: 0.5)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.forum, color: Color(0xFFC1C1FF), size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Comunicação Global',
-                      style: GoogleFonts.hankenGrotesk(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFFE3E0F6)),
-                    ),
-                  ],
+  Widget _buildStudentListItem({
+    required AppUser student,
+    required String name,
+    required String turma,
+    required String course,
+    required String initials,
+    required Color color,
+  }) {
+    return InkWell(
+      onTap: () => widget.onTap(student),
+      borderRadius: BorderRadius.circular(8),
+      hoverColor: const Color(0xFF1E1E2E),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF14142B),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF464555)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: Color(0xFF292839),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                initials,
+                style: GoogleFonts.hankenGrotesk(
+                  color: color,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
                 ),
-                Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(color: Color(0xFF00E1AB), shape: BoxShape.circle),
-                    ),
-                    const SizedBox(width: 6),
-                    Text('14 online', style: GoogleFonts.jetBrainsMono(fontSize: 10, color: const Color(0xFFC7C4D7))),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildChatMessage('System', 'Lembrete: Entrega do projeto de Data Science amanhã às 23:59.', false, '10:42 AM'),
-                  const SizedBox(height: 16),
-                  _buildChatMessage('Você', 'Alguém precisa de ajuda com o setup do ambiente?', true, '10:45 AM'),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFF464555), width: 0.5)),
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF292839),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF464555)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      style: const TextStyle(color: Color(0xFFE3E0F6), fontSize: 13),
-                      decoration: InputDecoration(
-                        hintText: 'Digite uma mensagem...',
-                        hintStyle: TextStyle(color: const Color(0xFF908FA0)),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
+                  Text(
+                    name,
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFE3E0F6),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.send, color: Color(0xFFC1C1FF), size: 18),
+                  Text(
+                    '$turma • $course',
+                    style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFC7C4D7)),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChatMessage(String sender, String message, bool isMe, String time) {
-    return Column(
-      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-          children: [
-            Text(
-              sender,
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 11,
-                color: isMe ? const Color(0xFFC1C1FF) : const Color(0xFF00E1AB),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(time, style: GoogleFonts.jetBrainsMono(fontSize: 9, color: const Color(0xFF908FA0))),
+            const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF908FA0)),
           ],
         ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: isMe ? const Color(0xFF5D5FEF) : const Color(0xFF1E1E2E),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFF464555)),
-          ),
-          child: Text(
-            message,
-            style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFE3E0F6)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEngagementWidget() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: const Color(0xFF14142B),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF464555)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFF008261).withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: const Icon(Icons.rocket_launch, color: Color(0xFF00E1AB), size: 24),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'Engajamento',
-            style: GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.w600, color: const Color(0xFFE3E0F6)),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Motive a turma com um desafio relâmpago.',
-            style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFC7C4D7)),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.arrow_forward, size: 16),
-              label: const Text('Configurar Desafio'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFE3E0F6),
-                side: const BorderSide(color: Color(0xFF464555)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
